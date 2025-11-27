@@ -610,6 +610,17 @@ const App = () => {
                     placeholder="0.00"
                   />
                 </div>
+                <label className="block text-slate-300 mb-2 text-sm">
+                  Date
+                </label>
+                <div className="relative">
+                  <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                  <input
+                    type="date"
+                    className="w-full pl-12 pr-4 py-3 bg-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    defaultValue={new Date().toISOString().split("T")[0]}
+                  />
+                </div>
               </div>
               <div>
                 <label className="block text-slate-300 mb-2 text-sm">
