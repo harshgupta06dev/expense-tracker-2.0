@@ -22,6 +22,7 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { Link } from "react-router-dom";
 
 const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -150,21 +151,23 @@ const Dashboard = () => {
             {menuItems.map((item) => {
               const Icon = item.icon;
               return (
-                <button
-                  key={item.id}
-                  onClick={() => {
-                    setActiveTab(item.id);
-                    setSidebarOpen(false);
-                  }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left focus:outline-none ${
-                    activeTab === item.id
-                      ? "bg-blue-600 text-white shadow-lg"
-                      : "text-slate-400 hover:bg-slate-700 hover:text-white"
-                  }`}
-                >
-                  <Icon className="w-5 h-5" />
-                  <span className="font-medium">{item.name}</span>
-                </button>
+                <Link to={`/${item.name}`}>
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setActiveTab(item.id);
+                      setSidebarOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all text-left focus:outline-none ${
+                      activeTab === item.id
+                        ? "bg-blue-600 text-white shadow-lg"
+                        : "text-slate-400 hover:bg-slate-700 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="w-5 h-5" />{" "}
+                    <span className="font-medium">{item.name}</span>
+                  </button>
+                </Link>
               );
             })}
           </nav>

@@ -7,7 +7,8 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Dashboard />} />
-      <Route path="/transaction" element={<TransactionsPage />} />
+      <Route path="/dashboard" element={<Dashboard />} />
+      <Route path="/transactions" element={<TransactionsPage />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/debt" element={<Debt />} />
     </Routes>
