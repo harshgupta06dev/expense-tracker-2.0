@@ -190,54 +190,79 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-        <header className="bg-slate-800 border-b border-slate-700 px-6 sm:px-6 py-4 sm:py-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-4">
-              <button
-                aria-label="Open sidebar"
-                onClick={() => setSidebarOpen(true)}
-                className="lg:hidden text-slate-400 p-2 rounded-md"
-              >
-                <Menu className="w-6 h-6" />
-              </button>
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-white">
-                  Dashboard
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-400">
-                  Welcome back, John!
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Date Filter Dropdown */}
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-                <select
-                  value={dateFilter}
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  className="pl-10 pr-4 py-2 bg-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-600 appearance-none cursor-pointer font-medium"
+        <header className="bg-slate-800 border-b border-slate-700 px-4 sm:px-6 py-3 sm:py-4">
+          <div className="max-w-screen-xl mx-auto">
+            {/* Layout: column on xs, row on sm+ */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              {/* Left: menu + title */}
+              <div className="flex items-center gap-3 w-full sm:w-auto">
+                {/* Sidebar menu (visible on small screens) */}
+                <button
+                  aria-label="Open sidebar"
+                  onClick={() => setSidebarOpen(true)}
+                  className="lg:hidden text-slate-300 p-2 rounded-md hover:bg-slate-700 transition"
                 >
-                  <option value="today">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="yesterday">Yesterday</option>
-                  <option value="this-week">This Week</option>
-                  <option value="last-week">Last Week</option>
-                  <option value="this-month">This Month</option>
-                  <option value="last-month">Last Month</option>
-                  <option value="this-year">This Year</option>
-                </select>
+                  <Menu className="w-6 h-6" />
+                </button>
+
+                <div className="min-w-0">
+                  <h1 className="text-lg sm:text-2xl font-bold text-white truncate">
+                    Dashboard
+                  </h1>
+                  <p className="text-xs sm:text-sm text-slate-400 truncate">
+                    Welcome back, John!
+                  </p>
+                </div>
               </div>
-              {/* Make the Add button a little bigger on small screens for easier tapping */}
-              <button
-                onClick={() => setShowAddModal(true)}
-                className="bg-linear-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2 sm:py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2"
-                aria-label="Add transaction"
-              >
-                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                <span className="text-sm sm:text-base">Add Transaction</span>
-              </button>
+
+              {/* Right: controls (stacked on xs, inline on sm+) */}
+              <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                {/* Mobile: compact controls row (visible on xs) */}
+                <div className="flex items-center gap-2 w-full sm:hidden">
+                  {/* Compact calendar button to open a mobile date picker / modal */}
+                  <button
+                    aria-label="Open date filter"
+                    onClick={() => {
+                      /* TODO: open mobile date modal/drawer */
+                    }}
+                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg font-medium w-full justify-center"
+                  >
+                    <Calendar className="w-4 h-4 text-slate-300" />
+                    <span className="text-sm">Filter</span>
+                  </button>
+                </div>
+
+                {/* Desktop / Tablet: full select (hidden on xs) */}
+                <div className="hidden sm:block">
+                  <div className="relative w-48 md:w-64">
+                    <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
+                    <select
+                      value={dateFilter}
+                      onChange={(e) => setDateFilter(e.target.value)}
+                      className="pl-10 pr-4 py-2 bg-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-600 appearance-none cursor-pointer font-medium text-sm w-full min-w-0"
+                    >
+                      <option value="all">All Time</option>
+                      <option value="today">Today</option>
+                      <option value="yesterday">Yesterday</option>
+                      <option value="this-week">This Week</option>
+                      <option value="last-week">Last Week</option>
+                      <option value="this-month">This Month</option>
+                      <option value="last-month">Last Month</option>
+                      <option value="this-year">This Year</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Add button: full on all sizes but responsive padding & text */}
+                <button
+                  onClick={() => setShowAddModal(true)}
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-3 sm:px-4 py-2 rounded-lg font-semibold shadow-lg hover:shadow-xl transition-all flex items-center gap-2 whitespace-nowrap"
+                  aria-label="Add transaction"
+                >
+                  <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="text-sm sm:text-base">Add Transaction</span>
+                </button>
+              </div>
             </div>
           </div>
         </header>
@@ -494,25 +519,27 @@ const Dashboard = () => {
                   <CreditCard className="w-5 h-5 text-blue-400" />
                   Recent Transactions
                 </h2>
-                <button
-                  onClick={() => setActiveTab("transactions")}
-                  className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
-                >
-                  See All Transactions
-                  <svg
-                    className="w-4 h-4"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
+                <Link to={"/transactions"}>
+                  <button
+                    onClick={() => setActiveTab("transactions")}
+                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold rounded-lg transition-colors flex items-center gap-2"
                   >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 5l7 7-7 7"
-                    />
-                  </svg>
-                </button>
+                    See All Transactions
+                    <svg
+                      className="w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </button>
+                </Link>
               </div>
               {/* responsive grid: 1 on xs, 2 on sm, 3 on md, 5 on lg */}
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
