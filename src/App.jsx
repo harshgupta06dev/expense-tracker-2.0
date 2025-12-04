@@ -3,6 +3,7 @@ import Dashboard from "./Dashboard";
 import TransactionsPage from "./Transaction";
 import Analytics from "./Analytics";
 import Debt from "./Debt";
+import NotFound from "./NotFound";
 function App() {
   return (
     <Routes>
@@ -11,6 +12,7 @@ function App() {
       <Route path="/transactions" element={<TransactionsPage />} />
       <Route path="/analytics" element={<Analytics />} />
       <Route path="/debt" element={<Debt />} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }
