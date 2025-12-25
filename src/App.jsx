@@ -1,8 +1,8 @@
 import { Routes, Route } from "react-router-dom";
-import Dashboard from "./Dashboard";
-import TransactionsPage from "./Transaction";
-import Analytics from "./Analytics";
-import Debt from "./Debt";
+import Dashboard from "./Features/Dashboard/Dashboard";
+import TransactionsPage from "./Features/Transaction/Transaction";
+import Analytics from "./Features/Analytics/Analytics";
+import Debt from "./Features/Debt/Debt";
 import NotFound from "./NotFound";
 function App() {
   return (
