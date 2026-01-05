@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   PieChart as RechartsPieChart,
   Pie,
@@ -6,9 +7,11 @@ import {
   Tooltip,
   PieChart,
 } from "recharts";
+import EmptyCardState from "./EmptyCardState";
+import { selectFilteredTransactions } from "../Features/addTransactionModel/TransactionSlice";
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload || !payload.length) return null;
-  console.log(payload);
+
   const item = payload[0];
   // payload[0].percent is provided by Recharts for Pie
   const percent =
@@ -26,15 +29,39 @@ const CustomTooltip = ({ active, payload }) => {
     </div>
   );
 };
-function CategoryPieChart({ withoutLegend, pieRadius, pieData, chartHeight }) {
-  const categoryData = [
-    { name: "Food", value: 850, color: "#f97316" },
-    { name: "Transport", value: 420, color: "#3b82f6" },
-    { name: "Shopping", value: 680, color: "#a855f7" },
-    { name: "Housing", value: 1200, color: "#22c55e" },
-    { name: "Entertainment", value: 180, color: "#ec4899" },
-    { name: "Healthcare", value: 120, color: "#ef4444" },
-  ];
+function CategoryPieChart({
+  withoutLegend,
+  pieRadius,
+  pieData,
+  chartHeight,
+  setShowAddModal,
+}) {
+  const CATEGORY_COLORS = {
+    Food: "#f97316",
+    Transport: "#3b82f6",
+    Shopping: "#a855f7",
+    Housing: "#22c55e",
+    Entertainment: "#ec4899",
+    Healthcare: "#ef4444",
+  };
+  const transactions = useSelector(selectFilteredTransactions);
+  const categoryPieData = Object.values(
+    transactions.reduce((acc, tx) => {
+      if (tx.type !== "Expense") return acc;
+
+      if (!acc[tx.category]) {
+        acc[tx.category] = {
+          name: tx.category, // 👈 for Pie label
+          value: 0, // 👈 Pie uses this
+          color: CATEGORY_COLORS[tx.category] || "#94a3b8", // default color
+        };
+      }
+
+      acc[tx.category].value += tx.amount;
+      return acc;
+    }, {})
+  );
+  const hasCategoryData = categoryPieData.length > 0;
   return (
     <>
       {withoutLegend ? (
@@ -77,69 +104,59 @@ function CategoryPieChart({ withoutLegend, pieRadius, pieData, chartHeight }) {
           {/* place custom component inside file scope or above return */}
           {/* Example: const CustomTooltip = ({ active, payload }) => { ... } */}
 
-          <div className="flex flex-col lg:flex-row lg:items-center gap-2 sm:gap-3">
-            {/* LEFT: Chart (keeps square ratio, centered) */}
-            <div className="w-full lg:w-1/2 flex items-center justify-center">
-              <div className="w-full max-w-60 sm:max-w-[280px] aspect-square mx-auto">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsPieChart>
-                    <Pie
-                      data={categoryData}
-                      cx="50%"
-                      cy="50%"
-                      // remove slice labels (they overlap)
-                      // labelLine={false}
-                      outerRadius="80%"
-                      dataKey="value"
-                      label={false}
-                    >
-                      {categoryData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-
-                    {/* use custom tooltip below */}
-                    <Tooltip content={<CustomTooltip />} />
-                  </RechartsPieChart>
-                </ResponsiveContainer>
+          {hasCategoryData ? (
+            <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+              {/* LEFT: Pie Chart */}
+              <div className="w-full lg:w-1/2 flex items-center justify-center">
+                <div className="w-full max-w-60 sm:max-w-[280px] aspect-square">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <RechartsPieChart>
+                      <Pie
+                        data={categoryPieData}
+                        dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius="80%"
+                      >
+                        {categoryPieData.map((entry, index) => (
+                          <Cell key={index} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<CustomTooltip />} />
+                    </RechartsPieChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
-            </div>
 
-            {/* RIGHT: Legend — tight, vertically-centered */}
-            <div className="w-full lg:w-1/2 space-y-3">
-              {categoryData.map((category) => (
-                <div
-                  key={category.name}
-                  className="
-            relative
-            flex items-center justify-between 
-            p-3
-            bg-slate-700/40
-            rounded-lg 
-            cursor-pointer
-            overflow-hidden
-            "
-                >
-                  <div className="absolute inset-0 bg-white/5 opacity-0 hover:opacity-100 transition"></div>
-
-                  {/* content */}
-                  <div className="relative flex items-center gap-3 min-w-0">
-                    <span
-                      className="w-3 h-3 rounded-full shrink-0"
-                      style={{ backgroundColor: category.color }}
-                    />
-                    <span className="text-slate-200 text-sm font-medium truncate">
-                      {category.name}
+              {/* RIGHT: Legend */}
+              <div className="w-full lg:w-1/2 space-y-3">
+                {categoryPieData.map((item) => (
+                  <div
+                    key={item.name}
+                    className="flex items-center justify-between p-3 bg-slate-700/40 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="w-3 h-3 rounded-full"
+                        style={{ backgroundColor: item.color }}
+                      />
+                      <span className="text-slate-200 text-sm font-medium">
+                        {item.name}
+                      </span>
+                    </div>
+                    <span className="text-white font-semibold text-sm">
+                      ₹{item.value.toLocaleString()}
                     </span>
                   </div>
-
-                  <div className="relative text-white font-semibold text-sm ml-4">
-                    ${category.value.toLocaleString()}
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
+          ) : (
+            /* EMPTY STATE — FULL CARD CENTERED */
+            <div className="h-80 w-full flex items-center justify-center">
+              <EmptyCardState setShowAddModal={setShowAddModal} />
+            </div>
+          )}
         </div>
       )}
     </>

@@ -7,7 +7,7 @@ import CategoryPieChart from "../../Components/CategoryPieChart";
 import BudgetStatus from "./Component/BudgetStatus";
 import RecentTransactions from "./Component/RecentTransactions";
 import AddBudgetModel from "./Component/AddBudgetModel";
-import AddTransactionModel from "../../Components/AddTransactionModel";
+import AddTransactionModel from "../addTransactionModel/addTransactionModel";
 import Sidebar from "../../Components/Sidebar";
 import AddTransactionBtn from "../../Components/AddTransactionBtn";
 
@@ -96,7 +96,7 @@ const Dashboard = () => {
             {/* Middle Row - Pie Chart and Budget Status */}
             {/* Stack on small screens: both take full width; on lg screens they split 8/4 */}
             {/* Category-wise Expenses — improved: hover % + tighter alignment */}
-            <CategoryPieChart />
+            <CategoryPieChart setShowAddModal={setShowAddModal} />
 
             {/* Budget Status */}
             <BudgetStatus setShowBudgetModal={setShowBudgetModal} />

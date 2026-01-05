@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Edit2, Menu, Trash2 } from "lucide-react";
 
 import Sidebar from "../../Components/Sidebar";
-import AddTransactionModel from "../../Components/AddTransactionModel";
+import AddTransactionModel from "../addTransactionModel/addTransactionModel";
 
 import Header from "./Component/Header";
 import SummaryCard from "./Component/TransactionSummaryCard";

@@ -1,8 +1,11 @@
 import { Calendar } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import { useDispatch } from "react-redux";
+import { addTransaction } from "./TransactionSlice";
 
 function AddTransactionModel({ showAddModal, setShowAddModal }) {
+  const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     type: "",
     description: "",
@@ -34,8 +37,10 @@ function AddTransactionModel({ showAddModal, setShowAddModal }) {
     const finalData = {
       ...formData,
       amount: Number(formData.amount),
+      id: Date.now(), // unique id
     };
-    console.log(finalData);
+    dispatch(addTransaction(finalData)); // 🔥 SEND TO REDUX
+    // console.log(finalData);
     toast.success("Transaction added successfully 💰");
 
     setShowAddModal(false);
