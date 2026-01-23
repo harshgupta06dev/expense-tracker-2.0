@@ -213,3 +213,73 @@
               )}
             </div> */
 }
+Transactions page.
+// export const selectTypeFilteredTransactions = createSelector(
+//   [
+//     (state) => state.transactions.list,
+//     (state) => state.transactions.typeFilter,
+//     (state) => state.transactions.searchTerm,
+//     (state) => state.transactions.dateFilter,
+//   ],
+//   (list, typeFilter, searchTerm, dateFilter) => {
+//     let filteredList = list;
+
+//     // 1️⃣ TYPE FILTER
+//     if (typeFilter === "income") {
+//       filteredList = filteredList.filter((t) => t.type === "Income");
+//     } else if (typeFilter === "expense") {
+//       filteredList = filteredList.filter((t) => t.type === "Expense");
+//     }
+
+//     // 2️⃣ SEARCH FILTER
+//     if (searchTerm?.trim()) {
+//       filteredList = filteredList.filter((t) =>
+//         (t.description ?? "").toLowerCase().includes(searchTerm.toLowerCase())
+//       );
+//     }
+
+//     // 3️⃣ DATE FILTER
+//     const today = new Date();
+//     today.setHours(23, 59, 59, 999);
+
+//     filteredList = filteredList.filter((tx) => {
+//       const txDate = new Date(tx.date);
+
+//       if (dateFilter === "all") return true;
+
+//       if (dateFilter === "yesterday") {
+//         const yesterday = new Date(today);
+//         yesterday.setDate(today.getDate() - 1);
+//         return txDate.toDateString() === yesterday.toDateString();
+//       }
+
+//       if (dateFilter === "weekly" || dateFilter === "week") {
+//         const monday = new Date(today);
+//         const day = (today.getDay() + 6) % 7;
+//         monday.setHours(0, 0, 0, 0);
+//         monday.setDate(monday.getDate() - day);
+
+//         const sunday = new Date(monday);
+//         sunday.setHours(23, 59, 59, 999);
+//         sunday.setDate(sunday.getDate() + 6);
+
+//         return txDate >= monday && txDate <= sunday;
+//       }
+
+//       if (dateFilter === "month" || dateFilter === "monthly") {
+//         return (
+//           txDate.getMonth() === today.getMonth() &&
+//           txDate.getFullYear() === today.getFullYear()
+//         );
+//       }
+
+//       if (dateFilter === "year" || dateFilter === "yearly") {
+//         return txDate.getFullYear() === today.getFullYear();
+//       }
+
+//       return true;
+//     });
+
+//     return filteredList;
+//   }
+// );

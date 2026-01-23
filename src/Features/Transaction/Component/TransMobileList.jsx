@@ -1,14 +1,14 @@
 import { Edit2, Trash2 } from "lucide-react";
 
-function TransMobileList({ currentTransactions, formatDate }) {
+function TransMobileList({ transactions, formatDate, setShowAddModal }) {
   return (
     <div className="md:hidden p-3 space-y-3">
-      {currentTransactions.length === 0 ? (
+      {transactions.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
           No transactions found
         </div>
       ) : (
-        currentTransactions.map((t) => (
+        transactions.map((t) => (
           <div
             key={t.id}
             className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm flex items-start justify-between"

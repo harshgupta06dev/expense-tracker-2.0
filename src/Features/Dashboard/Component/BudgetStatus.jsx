@@ -35,7 +35,7 @@ function BudgetStatus({ setShowBudgetModal }) {
 
   // ===== Overspend Detection =====
   let isOverBudget = hasBudget && rawBudgetUsed > budgetLimit;
-  console.log("isoverBudget", isOverBudget);
+
   const overspentAmount = isOverBudget ? rawBudgetUsed - budgetLimit : 0;
   // ===== Calculations =====
   const budgetUsed = hasBudget ? rawBudgetUsed : 0;

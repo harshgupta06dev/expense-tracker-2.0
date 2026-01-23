@@ -44,55 +44,73 @@ function CategoryPieChart({
     Entertainment: "#ec4899",
     Healthcare: "#ef4444",
   };
-  const transactions = useSelector(selectFilteredTransactions);
-  const categoryPieData = Object.values(
-    transactions.reduce((acc, tx) => {
-      if (tx.type !== "Expense") return acc;
+  const dashboardTransactions = useSelector(selectFilteredTransactions);
 
-      if (!acc[tx.category]) {
-        acc[tx.category] = {
-          name: tx.category, // 👈 for Pie label
-          value: 0, // 👈 Pie uses this
-          color: CATEGORY_COLORS[tx.category] || "#94a3b8", // default color
-        };
-      }
+  const categoryPieDate = function (transactions) {
+    const categoryPieData = Object.values(
+      transactions.reduce((acc, tx) => {
+        if (tx.type !== "Expense") return acc;
 
-      acc[tx.category].value += tx.amount;
-      return acc;
-    }, {})
+        if (!acc[tx.category]) {
+          acc[tx.category] = {
+            name: tx.category, // 👈 for Pie label
+            value: 0, // 👈 Pie uses this
+            color: CATEGORY_COLORS[tx.category] || "#94a3b8", // default color
+          };
+        }
+
+        acc[tx.category].value += tx.amount;
+        return acc;
+      }, {}),
+    );
+    return categoryPieData;
+  };
+  const analyticsTransactions = useSelector(
+    (state) => state.transactions.analyticsCurrentData,
   );
-  const hasCategoryData = categoryPieData.length > 0;
+  const DashboardPieData = categoryPieDate(dashboardTransactions);
+  const analyticsPieData = categoryPieDate(analyticsTransactions);
+  const hasDashboardCategoryData = DashboardPieData.length > 0;
+  const hasAnalyticsCategoryData = analyticsPieData.length > 0;
   return (
     <>
       {withoutLegend ? (
-        <div className="bg-slate-800 rounded-2xl p-3 md:p-4 flex flex-col items-center">
-          <h3 className="text-base md:text-lg font-semibold mb-2 w-full">
-            Category Distribution
-          </h3>
-          <div style={{ width: "100%", height: chartHeight }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
-                  }
-                  outerRadius={pieRadius}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} />
-              </PieChart>
-            </ResponsiveContainer>
+        hasAnalyticsCategoryData ? (
+          <div className="bg-slate-800 rounded-2xl p-3 md:p-4 flex flex-col items-center">
+            <h3 className="text-base md:text-lg font-semibold mb-2 w-full">
+              Category Distribution
+            </h3>
+
+            <div style={{ width: "100%", height: chartHeight }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={analyticsPieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) =>
+                      `${name} ${(percent * 100).toFixed(0)}%`
+                    }
+                    outerRadius={pieRadius}
+                    fill="#8884d8"
+                    dataKey="value"
+                  >
+                    {analyticsPieData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+
+                  <Tooltip content={<CustomTooltip />} />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="h-80 w-full flex items-center justify-center bg-slate-800">
+            <EmptyCardState setShowAddModal={setShowAddModal} />
+          </div>
+        )
       ) : (
         <div className="col-span-12 lg:col-span-8 bg-slate-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-slate-700">
           <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
@@ -104,7 +122,7 @@ function CategoryPieChart({
           {/* place custom component inside file scope or above return */}
           {/* Example: const CustomTooltip = ({ active, payload }) => { ... } */}
 
-          {hasCategoryData ? (
+          {hasDashboardCategoryData ? (
             <div className="flex flex-col lg:flex-row lg:items-center gap-3">
               {/* LEFT: Pie Chart */}
               <div className="w-full lg:w-1/2 flex items-center justify-center">
@@ -112,13 +130,13 @@ function CategoryPieChart({
                   <ResponsiveContainer width="100%" height="100%">
                     <RechartsPieChart>
                       <Pie
-                        data={categoryPieData}
+                        data={DashboardPieData}
                         dataKey="value"
                         cx="50%"
                         cy="50%"
                         outerRadius="80%"
                       >
-                        {categoryPieData.map((entry, index) => (
+                        {DashboardPieData.map((entry, index) => (
                           <Cell key={index} fill={entry.color} />
                         ))}
                       </Pie>
@@ -130,7 +148,7 @@ function CategoryPieChart({
 
               {/* RIGHT: Legend */}
               <div className="w-full lg:w-1/2 space-y-3">
-                {categoryPieData.map((item) => (
+                {DashboardPieData.map((item) => (
                   <div
                     key={item.name}
                     className="flex items-center justify-between p-3 bg-slate-700/40 rounded-lg"

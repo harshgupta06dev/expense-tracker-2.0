@@ -1,6 +1,21 @@
 import { Edit2, Trash2 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import {
+  setTransactionMode,
+  setUpdateTransaction,
+  deleteTransaction,
+} from "../../addTransactionModel/TransactionSlice";
 
-function TransTableRow({ transaction, formatDate }) {
+function TransTableRow({ transaction, formatDate, setShowAddModal }) {
+  const dispatch = useDispatch();
+  const handleEdit = function (transaction) {
+    setShowAddModal(true);
+    dispatch(setTransactionMode("edit"));
+    dispatch(setUpdateTransaction(transaction));
+  };
+  const handleDelete = function (id) {
+    dispatch(deleteTransaction(id));
+  };
   return (
     <tr
       key={transaction.id}
@@ -10,12 +25,12 @@ function TransTableRow({ transaction, formatDate }) {
         {formatDate(transaction.date)}
       </td>
       <td className="px-4 py-3 text-gray-800 truncate max-w-[220px]">
-        {transaction.name}
+        {transaction.description}
       </td>
       <td className="px-4 py-3">
         <span
           className={`px-3 py-1 rounded-md text-sm font-medium ${
-            transaction.type === "income"
+            transaction.type === "Income"
               ? "bg-green-100 text-green-700"
               : "bg-red-100 text-red-700"
           }`}
@@ -29,14 +44,14 @@ function TransTableRow({ transaction, formatDate }) {
       <td className="px-4 py-3">
         <div className="flex items-center justify-center gap-2">
           <button
-            onClick={() => console.log("Edit transaction:", transaction.id)}
+            onClick={() => handleEdit(transaction)}
             className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
             title="Edit transaction"
           >
             <Edit2 size={16} />
           </button>
           <button
-            onClick={() => console.log("Delete transaction:", transaction.id)}
+            onClick={() => handleDelete(transaction.id)}
             className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
             title="Delete transaction"
           >

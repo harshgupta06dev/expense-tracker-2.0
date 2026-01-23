@@ -8,8 +8,8 @@ export const selectTotalIncome = (state) =>
     .reduce((sum, tx) => sum + tx.amount, 0);
 
 export const selectTotalExpense = (state, transactions = null) => {
-  const list = transactions ?? state.transactions.list;
-
+  const list = transactions ?? state.transactions?.list;
+  console.log(list);
   return list
     .filter((tx) => tx.type === "Expense")
     .reduce((sum, tx) => sum + tx.amount, 0);
@@ -78,3 +78,10 @@ export const getDaysLeft = (timePeriod) => {
   const diffTime = endDate - today;
   return Math.max(Math.ceil(diffTime / (1000 * 60 * 60 * 24)), 0);
 };
+export function calculateTotal(transactions, type) {
+  return transactions
+    .filter((tx) => tx.type === type)
+    .reduce((total, tx) => {
+      return total + tx.amount;
+    }, 0);
+}

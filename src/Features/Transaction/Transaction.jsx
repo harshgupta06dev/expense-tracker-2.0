@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Edit2, Menu, Trash2 } from "lucide-react";
 
 import Sidebar from "../../Components/Sidebar";
 import AddTransactionModel from "../addTransactionModel/addTransactionModel";
@@ -12,69 +11,27 @@ import EmptyTransaction from "../../Components/EmptyTransaction";
 import TransTableRow from "./Component/TransTableRow";
 import TransPagination from "./Component/TransPagination";
 import TransMobileList from "./Component/TransMobileList";
+import { useSelector } from "react-redux";
+import { selectTypeFilteredTransactions } from "../addTransactionModel/TransactionSlice";
 
-// Sample transaction data
-const generateSampleData = () => {
-  const categories = [
-    "Food",
-    "Transport",
-    "Shopping",
-    "Housing",
-    "Entertainment",
-    "Healthcare",
-    "Salary",
-    "Freelance",
-    "Investment",
-  ];
-  const names = [
-    "Grocery Store",
-    "Uber Ride",
-    "Amazon",
-    "Rent Payment",
-    "Netflix",
-    "Hospital",
-    "Monthly Salary",
-    "Project Payment",
-    "Dividend",
-  ];
-
-  const transactions = [];
-  for (let i = 0; i < 50; i++) {
-    const type = Math.random() > 0.3 ? "expense" : "income";
-    const categoryIndex =
-      type === "expense"
-        ? Math.floor(Math.random() * 6)
-        : Math.floor(Math.random() * 3) + 6;
-
-    transactions.push({
-      id: i + 1,
-      date: new Date(
-        2024,
-        10 - Math.floor(Math.random() * 3),
-        Math.floor(Math.random() * 28) + 1
-      ).toISOString(),
-      name: names[categoryIndex],
-      type: type,
-      amount:
-        type === "expense"
-          ? Math.floor(Math.random() * 500) + 20
-          : Math.floor(Math.random() * 3000) + 500,
-      category: categories[categoryIndex],
-    });
-  }
-
-  return transactions.sort((a, b) => new Date(b.date) - new Date(a.date));
-};
 const TransactionsPage = () => {
-  const [transactions] = useState(generateSampleData());
+  // const [transactions] = useState(generateSampleData());
   const [searchTerm, setSearchTerm] = useState("");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
 
   const [activeTab, setActiveTab] = useState("transactions");
+  const transactions = useSelector(selectTypeFilteredTransactions);
+  // const transactions = transactions.slice(0, 11);
+  const transPerPage = 8;
+  const currentPage = useSelector((state) => state.transactions.currentPage);
+  const start = (currentPage - 1) * transPerPage;
+  const end = start + transPerPage;
 
-  const currentTransactions = transactions.slice(0, 11);
+  const paginatedTransactions = transactions.slice(start, end);
+
+  console.log(paginatedTransactions);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -107,28 +64,26 @@ const TransactionsPage = () => {
               setSidebarOpen={setSidebarOpen}
             />
             {/* Summary Cards - responsive, equal height */}
-            <SummaryCard />
+            <SummaryCard transactions={transactions} />
 
             {/* Filters + Search - stacked on mobile */}
-            <div className="bg-white rounded-2xl overflow-hidden shadow-xl max-w-6xl mx-auto mb-6">
-              <TransFilterbar
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-              />
+            <div className="bg-white rounded-2xl  shadow-xl max-w-6xl mx-auto mb-6 overflow-visible">
+              <TransFilterbar />
 
               {/* Desktop table */}
               <div className="overflow-x-auto">
                 <table className="w-full hidden md:table">
                   <TransTableHeader />
                   <tbody>
-                    {currentTransactions.length === 0 ? (
+                    {paginatedTransactions.length === 0 ? (
                       <EmptyTransaction />
                     ) : (
-                      currentTransactions.map((transaction) => (
+                      paginatedTransactions.map((transaction) => (
                         <TransTableRow
                           key={transaction.id}
                           transaction={transaction}
                           formatDate={formatDate}
+                          setShowAddModal={setShowAddModal}
                         />
                       ))
                     )}
@@ -137,13 +92,14 @@ const TransactionsPage = () => {
 
                 {/* Mobile list - shown on small screens */}
                 <TransMobileList
-                  currentTransactions={currentTransactions}
+                  setShowAddModal={setShowAddModal}
+                  transactions={transactions}
                   formatDate={formatDate}
                 />
               </div>
 
               {/* Pagination */}
-              <TransPagination />
+              <TransPagination transactions={transactions} />
             </div>
 
             {/* Add Transaction Modal - full screen on mobile */}

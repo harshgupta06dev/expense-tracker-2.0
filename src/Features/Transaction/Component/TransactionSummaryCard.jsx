@@ -1,6 +1,16 @@
 import { Filter, TrendingDown, TrendingUp } from "lucide-react";
+import { useSelector } from "react-redux";
+import {
+  selectTotalExpense,
+  selectTotalIncome,
+} from "../../Dashboard/DashboardSlice";
 
-function SummaryCard() {
+function SummaryCard({ transactions }) {
+  const transaction = useSelector((state) => state.transactions?.list);
+
+  const totalIncome = useSelector(selectTotalIncome);
+  const totalExpense = useSelector(selectTotalExpense);
+
   return (
     <div className="mb-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 max-w-6xl mx-auto">
@@ -8,19 +18,19 @@ function SummaryCard() {
           {
             icon: TrendingUp,
             title: "Total Income",
-            value: `$${5000}`,
+            value: `$${totalIncome}`,
             style: "from-green-500 to-green-600",
           },
           {
             icon: TrendingDown,
             title: "Total Expenses",
-            value: `$${5000}`,
+            value: `$${totalExpense}`,
             style: "from-red-500 to-red-600",
           },
           {
             icon: Filter,
             title: "Filtered Results",
-            value: `$${5000}`,
+            value: `${transactions.length}`,
             style: "from-blue-500 to-blue-600",
           },
         ].map((card, idx) => {

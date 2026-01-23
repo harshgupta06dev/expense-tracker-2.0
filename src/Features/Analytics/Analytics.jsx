@@ -7,6 +7,8 @@ import AnalyticsSummaryCard from "./Component/Responsive/AnalyticsSummaryCard";
 import AnalyticsCategory from "./Component/Responsive/AnalyticsCategory";
 import CategoryPieChart from "../../Components/CategoryPieChart";
 import AnalyticsSpendingTrends from "./Component/AnalyticsSpendingTrends";
+import AddTransactionModel from "../addTransactionModel/addTransactionModel";
+import { Loader2, Sparkles } from "lucide-react";
 const Analytics = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("analytics");
@@ -15,6 +17,8 @@ const Analytics = () => {
   const [userQuestion, setUserQuestion] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("Nov 2024");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+  const [showAddModal, setShowAddModal] = useState(false);
 
   // responsive chart sizes (adjust for very small screens)
   const [chartHeight, setChartHeight] = useState(280);
@@ -45,6 +49,20 @@ const Analytics = () => {
     window.addEventListener("resize", updateSizes);
     return () => window.removeEventListener("resize", updateSizes);
   }, []);
+  const monthMap = {
+    Jan: 0,
+    Feb: 1,
+    Mar: 2,
+    Apr: 3,
+    May: 4,
+    Jun: 5,
+    Jul: 6,
+    Aug: 7,
+    Sep: 8,
+    Oct: 9,
+    Nov: 10,
+    Dec: 11,
+  };
 
   // All months data
   const allMonthsData = {
@@ -155,7 +173,7 @@ const Analytics = () => {
     currentMonthIndex > 0 ? monthsList[currentMonthIndex - 1] : null;
   const currentData = allMonthsData[selectedMonth];
   const previousData = previousMonth ? allMonthsData[previousMonth] : null;
-  console.log(previousData);
+  // console.log(previousData);
   const categories = [
     { name: "Food", color: "#fb923c", icon: "🍔" },
     { name: "Transport", color: "#3b82f6", icon: "🚗" },
@@ -175,7 +193,7 @@ const Analytics = () => {
   }));
   const highestCategory = categories.reduce(
     (max, cat) => (currentData[cat.name] > currentData[max.name] ? cat : max),
-    categories[0]
+    categories[0],
   );
   const totalIncome = 5000;
   const savings = totalIncome - currentData.total;
@@ -196,10 +214,10 @@ const Analytics = () => {
       };
       const prompt = userQuestion
         ? `Based on this expense data for ${selectedMonth}: ${JSON.stringify(
-            expenseData
+            expenseData,
           )}, answer this question: ${userQuestion}. Be specific and use actual numbers in Indian Rupees (₹).`
         : `Analyze this expense data for ${selectedMonth}: ${JSON.stringify(
-            expenseData
+            expenseData,
           )}. Provide clear, actionable insights.`;
 
       // NOTE: keep your API key secure & handle CORS
@@ -260,6 +278,8 @@ const Analytics = () => {
         <AnalyticsHeader
           sidebarOpen={sidebarOpen}
           setSidebarOpen={setSidebarOpen}
+          showAddModal={showAddModal}
+          setShowAddModal={setShowAddModal}
         />
 
         {/* Summary cards */}
@@ -270,6 +290,7 @@ const Analytics = () => {
           savingsRate={savingsRate}
           highestCategory={highestCategory}
           savings={savings}
+          monthMap={monthMap}
         />
 
         {/* Category cards */}
@@ -292,11 +313,12 @@ const Analytics = () => {
             pieRadius={pieRadius}
             pieData={pieData}
             chartHeight={chartHeight}
+            setShowAddModal={setShowAddModal}
           />
         </div>
 
         {/* AI Advisor */}
-        {/* <section className="bg-gradient-to-br from-indigo-600 to-purple-600 rounded-2xl p-3 md:p-4">
+        <section className="bg-linear-to-br from-indigo-600 to-purple-600 rounded-2xl p-3 md:p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="bg-white/20 p-2 rounded-xl">
               <Sparkles className="w-4 h-4 text-white" />
@@ -362,8 +384,12 @@ const Analytics = () => {
               </div>
             )
           )}
-        </section> */}
+        </section>
       </main>
+      <AddTransactionModel
+        showAddModal={showAddModal}
+        setShowAddModal={setShowAddModal}
+      />
     </div>
   );
 };
