@@ -12,12 +12,14 @@ import Sidebar from "../../Components/Sidebar";
 import AddTransactionBtn from "../../Components/AddTransactionBtn";
 
 import DateFilters from "../../Components/DateFilter";
+import MobileDateFilter from "../../Components/MobileDateFilter";
 
 const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
   const [showBudgetModal, setShowBudgetModal] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   return (
     <div className="flex h-screen bg-slate-900 overflow-hidden">
@@ -32,13 +34,12 @@ const Dashboard = () => {
       {/* Main Content */}
       <main className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
+
         <header className="bg-slate-800 border-b border-slate-700 px-4 sm:px-6 py-3 sm:py-4">
           <div className="max-w-7xl mx-auto">
-            {/* Layout: column on xs, row on sm+ */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-              {/* Left: menu + title */}
+              {/* Left */}
               <div className="flex items-center gap-3 w-full sm:w-auto">
-                {/* Sidebar menu (visible on small screens) */}
                 <button
                   aria-label="Open sidebar"
                   onClick={() => setSidebarOpen(true)}
@@ -57,31 +58,34 @@ const Dashboard = () => {
                 </div>
               </div>
 
-              {/* Right: controls (stacked on xs, inline on sm+) */}
-              <div className="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                {/* Mobile: compact controls row (visible on xs) */}
-                <div className="flex items-center gap-2 w-full sm:hidden">
-                  {/* Compact calendar button to open a mobile date picker / modal */}
-                  <button
-                    aria-label="Open date filter"
-                    onClick={() => {
-                      /* TODO: open mobile date modal/drawer */
-                    }}
-                    className="flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg font-medium w-full justify-center"
-                  >
-                    <Calendar className="w-4 h-4 text-slate-300" />
-                    <span className="text-sm">Filter</span>
-                  </button>
-                </div>
-                {/* Desktop / Tablet: full select (hidden on xs) */}
-                <DateFilters
-                  // dateFilter={dateFilter}
-                  // setDateFilter={setDateFilter}
-                  allVarientColor="slate"
-                />
+              {/* Right */}
+              <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-2 sm:gap-3">
+                {/* Mobile Filter */}
+                <button
+                  aria-label="Toggle date filter"
+                  onClick={() => setShowMobileFilter((prev) => !prev)}
+                  className="sm:hidden flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg font-medium w-full justify-center"
+                >
+                  <Calendar className="w-4 h-4 text-slate-300" />
+                  <span className="text-sm">Filter</span>
+                </button>
 
-                {/* Add button: full on all sizes but responsive padding & text */}
-                <AddTransactionBtn setShowAddModal={setShowAddModal} />
+                {/* Desktop Date Filter */}
+                <div className="hidden sm:block">
+                  <DateFilters allVarientColor="slate" />
+                </div>
+                {showMobileFilter && (
+                  <div className="sm:hidden mt-2">
+                    <MobileDateFilter
+                      onClose={() => setShowMobileFilter(false)}
+                    />
+                  </div>
+                )}
+                {/* Add Transaction – always visible */}
+                {/* Add Transaction – centered on mobile */}
+                <div className="w-full sm:w-auto flex justify-center sm:justify-start">
+                  <AddTransactionBtn setShowAddModal={setShowAddModal} />
+                </div>
               </div>
             </div>
           </div>
