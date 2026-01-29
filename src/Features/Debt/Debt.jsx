@@ -8,6 +8,9 @@ import DebtMobile from "./Components/DebtMobile";
 import DebtFooter from "./Components/DebtFooter";
 import DebtModel from "./Components/DebtModel";
 import DebtSettle from "./Components/DebtSettle";
+import { CheckCircle } from "lucide-react";
+import { useSelector } from "react-redux";
+import EditDebtModal from "./Components/EditDebtModal";
 
 export default function DebtTracker() {
   const [debts, setDebts] = useState([
@@ -85,7 +88,7 @@ export default function DebtTracker() {
       date: "2025-01-26",
     },
   ]);
-
+  const debtsList = useSelector((state) => state.debt.debts);
   const [activeTab, setActiveTab] = useState("debt");
   const [showModal, setShowModal] = useState(false);
   const [showSettleModal, setShowSettleModal] = useState(false);
@@ -98,9 +101,10 @@ export default function DebtTracker() {
   const [formDate, setFormDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const itemsPerPage = 5;
-
-  const activeDebts = debts.filter((d) => !d.settled);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const activeDebts = debts.filter((d) => {
+    return !d.settled;
+  });
   const totalOwedToMe = activeDebts
     .filter((d) => d.type === "owed_to_me")
     .reduce((sum, d) => sum + (d.amount - d.paid), 0);
@@ -112,6 +116,7 @@ export default function DebtTracker() {
     .reduce((sum, d) => sum + (d.amount - d.paid), 0);
   const netBalance = totalOwedToMe - totalIOwe - totalCredit;
 
+  const itemsPerPage = 5;
   const totalPages = Math.ceil(debts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedDebts = debts.slice(startIndex, startIndex + itemsPerPage);
@@ -142,28 +147,6 @@ export default function DebtTracker() {
     setSelectedDebt(debt);
     setSettleAmount("");
     setShowSettleModal(true);
-  };
-
-  const handleSettle = () => {
-    if (!settleAmount || !selectedDebt) return;
-    const amount = parseFloat(settleAmount);
-    const remaining = selectedDebt.amount - selectedDebt.paid;
-    if (amount >= remaining) {
-      setDebts(
-        debts.map((d) =>
-          d.id === selectedDebt.id ? { ...d, paid: d.amount, settled: true } : d
-        )
-      );
-    } else {
-      setDebts(
-        debts.map((d) =>
-          d.id === selectedDebt.id ? { ...d, paid: d.paid + amount } : d
-        )
-      );
-    }
-    setShowSettleModal(false);
-    setSelectedDebt(null);
-    setSettleAmount("");
   };
 
   const removeDebt = (id) => {
@@ -204,7 +187,6 @@ export default function DebtTracker() {
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
-
       {/* Main Content */}
       <div className="flex-1 min-h-screen overflow-auto">
         <div className="w-full max-w-[1300px] mx-auto px-4 sm:px-6 lg:px-8 pt-4 pr-4 pl-4 pb-1">
@@ -216,30 +198,24 @@ export default function DebtTracker() {
           />
 
           {/* Summary cards (responsive grid) */}
-          <DebtSummaryCard
-            totalOwedToMe={totalOwedToMe}
-            activeDebts={activeDebts}
-            totalCredit={totalCredit}
-            totalIOwe={totalIOwe}
-            netBalance={netBalance}
-            debts={debts}
-          />
+          <DebtSummaryCard />
 
           {/* Records container */}
           <div className="bg-slate-800/50 rounded-xl border border-slate-700/50 overflow-hidden">
             <div className="p-4 border-b border-slate-700/50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <h2 className="font-semibold text-lg">All Debt Records</h2>
               <span className="text-sm text-slate-400">
-                {debts.length} total records
+                {debtsList.length} total records
               </span>
             </div>
             {/* Desktop / tablet table (hidden on small) */}
             <DebtDesktop
               paginatedDebts={paginatedDebts}
               getTypeLabel={getTypeLabel}
-              openSettleModal={openSettleModal}
+              setShowSettleModal={setShowSettleModal}
               getSettleButtonText={getSettleButtonText}
               removeDebt={removeDebt}
+              setShowEditModal={setShowEditModal}
             />
             {/* Mobile list (visible only on small screens) */}
             <DebtMobile
@@ -258,10 +234,10 @@ export default function DebtTracker() {
               setCurrentPage={setCurrentPage}
               totalPages={totalPages}
             />
+            {/* edit Debt model */}
           </div>
         </div>
       </div>
-
       {/* Add Debt Modal */}
       {showModal && (
         <DebtModel
@@ -270,17 +246,17 @@ export default function DebtTracker() {
           setShowModal={setShowModal}
         />
       )}
-
       {/* Settle Modal */}
-      {showSettleModal && selectedDebt && (
+      {showSettleModal && (
         <DebtSettle
           selectedDebt={selectedDebt}
           setShowSettleModal={setShowSettleModal}
           settleAmount={settleAmount}
           setSettleAmount={setSettleAmount}
-          handleSettle={handleSettle}
+          setShowEditModal={setShowEditModal}
         />
       )}
+      {showEditModal && <EditDebtModal setShowEditModal={setShowEditModal} />}
     </div>
   );
 }

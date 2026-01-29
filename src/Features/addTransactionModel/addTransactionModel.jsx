@@ -310,6 +310,20 @@ function AddTransactionModel({ showAddModal, setShowAddModal }) {
       });
       return;
     }
+    if (name === "amount") {
+      // ✅ allow only numbers (0–9)
+      if (!/^\d*$/.test(value)) return;
+
+      if (value.length > 9) {
+        toast.error("Amount cannot exceed 9 digits");
+        return;
+      }
+      setFormData({
+        ...formData,
+        amount: value,
+      });
+      return;
+    }
 
     setFormData({
       ...formData,
@@ -416,9 +430,11 @@ function AddTransactionModel({ showAddModal, setShowAddModal }) {
                     $
                   </span>
                   <input
-                    type="number"
+                    type="text"
                     className="w-full pl-8 pr-4 py-3 bg-slate-700 text-white rounded-lg"
                     name="amount"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     onChange={handleChange}
                     value={formData.amount || ""}
                     min="0"

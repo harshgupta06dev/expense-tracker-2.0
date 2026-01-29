@@ -1,13 +1,22 @@
 import { ArrowDownLeft, ArrowUpRight, CreditCard, Wallet } from "lucide-react";
+import { useSelector } from "react-redux";
 
-function DebtSummaryCard({
-  totalOwedToMe,
-  activeDebts,
-  totalCredit,
-  totalIOwe,
-  netBalance,
-  debts,
-}) {
+function DebtSummaryCard() {
+  const debtsList = useSelector((state) => state.debt.debts);
+  const activeDebts = debtsList.filter((d) => {
+    return !d.settled;
+  });
+  const totalOwedToMe = activeDebts
+    .filter((d) => d.debtType === "owed_to_me")
+    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
+  const totalIOwe = activeDebts
+    .filter((d) => d.debtType === "i_owe")
+    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
+  const totalCredit = activeDebts
+    .filter((d) => d.debtType === "credit")
+    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
+  const netBalance = totalOwedToMe - totalIOwe - totalCredit;
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-5">
       <div className="bg-green-500 rounded-xl p-4">
@@ -19,8 +28,8 @@ function DebtSummaryCard({
           ${totalOwedToMe.toLocaleString()}
         </p>
         <p className="text-white/70 text-xs mt-1">
-          {activeDebts.filter((d) => d.type === "owed_to_me").length} people owe
-          you
+          {activeDebts.filter((d) => d.debtType === "owed_to_me").length} people
+          owe you
         </p>
       </div>
 
@@ -33,7 +42,8 @@ function DebtSummaryCard({
           ${totalIOwe.toLocaleString()}
         </p>
         <p className="text-white/70 text-xs mt-1">
-          You owe {activeDebts.filter((d) => d.type === "i_owe").length} people
+          You owe {activeDebts.filter((d) => d.debtType === "i_owe").length}{" "}
+          people
         </p>
       </div>
 
@@ -46,7 +56,7 @@ function DebtSummaryCard({
           ${totalCredit.toLocaleString()}
         </p>
         <p className="text-white/70 text-xs mt-1">
-          {activeDebts.filter((d) => d.type === "credit").length} credit
+          {activeDebts.filter((d) => d.debtType === "credit").length} credit
           purchases
         </p>
       </div>
@@ -60,7 +70,7 @@ function DebtSummaryCard({
           ${netBalance.toLocaleString()}
         </p>
         <p className="text-white/70 text-xs mt-1">
-          {debts.filter((d) => d.settled).length} settled records
+          {debtsList.filter((d) => d.settled).length} settled records
         </p>
       </div>
     </div>
