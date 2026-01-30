@@ -93,7 +93,7 @@ const TransactionsPage = () => {
                 {/* Mobile list - shown on small screens */}
                 <TransMobileList
                   setShowAddModal={setShowAddModal}
-                  transactions={transactions}
+                  paginatedTransactions={paginatedTransactions}
                   formatDate={formatDate}
                 />
               </div>
