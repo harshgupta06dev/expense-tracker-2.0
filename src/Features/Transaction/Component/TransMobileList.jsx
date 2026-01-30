@@ -1,6 +1,21 @@
 import { Edit2, Trash2 } from "lucide-react";
+import { useDispatch } from "react-redux";
+import {
+  deleteTransaction,
+  setTransactionMode,
+  setUpdateTransaction,
+} from "../../addTransactionModel/TransactionSlice";
 
 function TransMobileList({ transactions, formatDate, setShowAddModal }) {
+  const dispatch = useDispatch();
+  const handleEdit = function (transaction) {
+    setShowAddModal(true);
+    dispatch(setTransactionMode("edit"));
+    dispatch(setUpdateTransaction(transaction));
+  };
+  const handleDelete = function (id) {
+    dispatch(deleteTransaction(id));
+  };
   return (
     <div className="md:hidden p-3 space-y-3">
       {transactions.length === 0 ? (
@@ -35,13 +50,13 @@ function TransMobileList({ transactions, formatDate, setShowAddModal }) {
               </div>
               <div className="flex gap-2">
                 <button
-                  onClick={() => console.log("Edit", t.id)}
+                  onClick={() => handleEdit(t)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                 >
                   <Edit2 size={16} />
                 </button>
                 <button
-                  onClick={() => console.log("Delete", t.id)}
+                  onClick={() => handleDelete(t.id)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-all"
                 >
                   <Trash2 size={16} />

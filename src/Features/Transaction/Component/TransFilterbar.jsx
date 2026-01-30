@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Calendar, Search } from "lucide-react";
 
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -6,10 +6,12 @@ import {
   setSearchTerm,
 } from "../../addTransactionModel/TransactionSlice";
 import DateFilters from "../../../Components/DateFilter";
+import { useState } from "react";
+import MobileDateFilter from "../../../Components/MobileDateFilter";
 function TransFilterbar() {
   const dispatch = useDispatch();
   const searchTerm = useSelector((state) => state.transactions.searchTerm);
-
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
   const filterType = useSelector((state) => state.transactions?.typeFilter);
   // console.log(searchTerm);
   return (
@@ -65,9 +67,24 @@ function TransFilterbar() {
         </div>
 
         <div className="flex gap-2 md:gap-3 items-center">
-          <div className="relative">
+          <button
+            aria-label="Toggle date filter"
+            onClick={() => setShowMobileFilter((prev) => !prev)}
+            className="sm:hidden flex items-center gap-2 bg-slate-700 text-white px-3 py-2 rounded-lg font-medium w-full justify-center"
+          >
+            <Calendar className="w-4 h-4 text-slate-300" />
+            <span className="text-sm">Filter</span>
+          </button>
+
+          {/* Desktop Date Filter */}
+          <div className="hidden sm:block">
             <DateFilters />
           </div>
+          {showMobileFilter && (
+            <div className="sm:hidden mt-2">
+              <MobileDateFilter onClose={() => setShowMobileFilter(false)} />
+            </div>
+          )}
 
           <button className="px-2 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-all text-sm">
             Export
