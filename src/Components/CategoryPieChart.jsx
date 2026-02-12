@@ -72,6 +72,7 @@ function CategoryPieChart({
   const analyticsPieData = categoryPieDate(analyticsTransactions);
   const hasDashboardCategoryData = DashboardPieData.length > 0;
   const hasAnalyticsCategoryData = analyticsPieData.length > 0;
+
   return (
     <>
       {withoutLegend ? (
@@ -89,10 +90,14 @@ function CategoryPieChart({
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={({ name, percent }) =>
-                      `${name} ${(percent * 100).toFixed(0)}%`
+                    label={window.innerWidth > 450}
+                    outerRadius={
+                      window.innerWidth < 350
+                        ? pieRadius - 20
+                        : window.innerWidth < 500
+                          ? pieRadius - 10
+                          : pieRadius
                     }
-                    outerRadius={pieRadius}
                     fill="#8884d8"
                     dataKey="value"
                   >
@@ -104,6 +109,27 @@ function CategoryPieChart({
                   <Tooltip content={<CustomTooltip />} />
                 </PieChart>
               </ResponsiveContainer>
+            </div>
+
+            {/* CUSTOM LEGEND FOR SMALL SCREENS */}
+            <div className="mt-3 w-full">
+              {analyticsPieData.map((item, i) => (
+                <div
+                  key={i}
+                  className="flex items-center justify-between text-sm px-2 py-1"
+                >
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-3 h-3 rounded-full"
+                      style={{ background: item.color }}
+                    ></span>
+
+                    <span className="truncate max-w-[120px]">{item.name}</span>
+                  </div>
+
+                  <span className="font-medium">₹{item.value}</span>
+                </div>
+              ))}
             </div>
           </div>
         ) : (

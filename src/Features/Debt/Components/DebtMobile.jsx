@@ -1,12 +1,17 @@
 import { Trash2 } from "lucide-react";
+import { useSelector } from "react-redux";
 
 function DebtMobile({
-  paginatedDebts,
   getTypeLabel,
   openSettleModal,
   getSettleButtonText,
   removeDebt,
 }) {
+  const currentPage = useSelector((state) => state.debt.currentPage);
+  const debts = useSelector((state) => state.debt.debts);
+  const itemsPerPage = 5;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedDebts = debts.slice(startIndex, startIndex + itemsPerPage);
   return (
     <div className="block sm:hidden p-4 space-y-3">
       {paginatedDebts.length === 0 ? (
