@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { updateDebt } from "../DebtSlice"; // create this reducer
 import toast from "react-hot-toast";
-
+import { supabase } from "../../../Supabase-Client";
 function EditDebtModal({ setShowEditModal }) {
   const dispatch = useDispatch();
   const selectedDebt = useSelector((state) => state.debt.selectedDebt);
@@ -13,9 +13,21 @@ function EditDebtModal({ setShowEditModal }) {
     selectedDebt?.description || "",
   );
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!amount || amount < selectedDebt?.paid) return;
+    const finalData = {
+      ...selectedDebt,
+      id: selectedDebt?.id,
+      amount: Number(amount),
+      description,
+    };
+    const { error } = await supabase
+      .from("Debt")
+      .update(finalData)
+      .eq("id", selectedDebt.id);
 
+    if (error) return console.error(error);
+    // console.log("this is what we called final data", finalData);
     dispatch(
       updateDebt({
         id: selectedDebt?.id,

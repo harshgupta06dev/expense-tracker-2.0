@@ -31,7 +31,7 @@ const TransactionsPage = () => {
 
   const paginatedTransactions = transactions.slice(start, end);
 
-  console.log(paginatedTransactions);
+  // console.log(paginatedTransactions);
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);

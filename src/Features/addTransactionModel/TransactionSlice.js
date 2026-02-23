@@ -40,9 +40,16 @@ const transactionSlice = createSlice({
     addBudget: (state, action) => {
       state.budgetList = action.payload;
     },
+    setBudget: (state, action) => {
+      state.budgetList = action.payload;
+    },
     setBudgetMode: (state, action) => {
       state.budgetMode = action.payload;
     },
+    setTransactions: (state, action) => {
+      state.list = action.payload;
+    },
+
     setDateFilter: (state, action) => {
       state.dateFilter = action.payload;
     },
@@ -76,10 +83,12 @@ export const {
   updateTransaction,
   addBudget,
   currentPageOfPag,
+  setBudget,
   setBudgetMode,
   setDateFilter,
   setTypeFilter,
   setSearchTerm,
+  setTransactions,
   setTransactionMode,
   setUpdateTransaction,
   setAnalyticsDateFilter,

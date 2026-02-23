@@ -1,4 +1,4 @@
-export const selectTransactions = (state) => state.transactions.list;
+export const selectTransactions = (state) => state.transactions?.list;
 // export const selectBudgetTransactions = useSelector(
 //   selectFilteredBudgetTransactisons
 // );
@@ -9,7 +9,7 @@ export const selectTotalIncome = (state) =>
 
 export const selectTotalExpense = (state, transactions = null) => {
   const list = transactions ?? state.transactions?.list;
-  console.log(list);
+  // console.log(list);
   return list
     .filter((tx) => tx.type === "Expense")
     .reduce((sum, tx) => sum + tx.amount, 0);
@@ -34,7 +34,7 @@ export const selectBalance = (state) => {
 
 export const selectAvgDailyExpense = (state) => {
   const expenses = state.transactions.list.filter(
-    (tx) => tx.type === "Expense"
+    (tx) => tx.type === "Expense",
   );
 
   if (expenses.length === 0) return 0;

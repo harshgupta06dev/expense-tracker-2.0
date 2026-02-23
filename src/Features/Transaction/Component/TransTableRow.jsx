@@ -1,20 +1,27 @@
 import { Edit2, Trash2 } from "lucide-react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   setTransactionMode,
   setUpdateTransaction,
   deleteTransaction,
 } from "../../addTransactionModel/TransactionSlice";
+import { supabase } from "../../../Supabase-Client";
 
 function TransTableRow({ transaction, formatDate, setShowAddModal }) {
+  const updatedDebt = useSelector((state) => state.debt);
   const dispatch = useDispatch();
-  const handleEdit = function (transaction) {
+  const handleEdit = async function (transaction) {
     setShowAddModal(true);
     dispatch(setTransactionMode("edit"));
     dispatch(setUpdateTransaction(transaction));
   };
-  const handleDelete = function (id) {
+  const handleDelete = async function (id) {
     dispatch(deleteTransaction(id));
+    const { error } = await supabase.from("transactions").delete().eq("id", id);
+    if (error) {
+      console.log("Error deleting in a task", error.message);
+      return;
+    }
   };
   return (
     <tr

@@ -2,6 +2,7 @@
 import { CheckCircle, Edit, Trash2 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { deleteDebt, setSelectedDebt } from "../DebtSlice";
+import { supabase } from "../../../Supabase-Client";
 
 function DebtDesktop({
   getTypeLabel,
@@ -18,7 +19,19 @@ function DebtDesktop({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedDebts = debts.slice(startIndex, startIndex + itemsPerPage);
   const dispatch = useDispatch();
-
+  const handleEdit = async function (debt) {
+    console.log("this is a edit debt", debt);
+    setShowEditModal(true);
+    dispatch(setSelectedDebt(debt));
+  };
+  const handleDelete = async function (debt) {
+    dispatch(deleteDebt(debt));
+    const { error } = await supabase.from("Debt").delete().eq("id", debt.id);
+    if (error) {
+      console.log("Error deleting in a task", error.message);
+      return;
+    }
+  };
   return (
     <>
       {/* ✅ SIDE SPACING LIKE 2nd IMAGE */}
@@ -142,18 +155,13 @@ function DebtDesktop({
                         <button
                           className="p-2 text-slate-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-lg transition"
                           title="Edit record"
-                          onClick={() => {
-                            setShowEditModal(true);
-                            dispatch(setSelectedDebt(debt));
-                          }}
+                          onClick={() => handleEdit(debt)}
                         >
                           <Edit size={14} />
                         </button>
 
                         <button
-                          onClick={() => {
-                            dispatch(deleteDebt(debt));
-                          }}
+                          onClick={() => handleDelete(debt)}
                           className="p-2 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition"
                           title="Delete record"
                         >

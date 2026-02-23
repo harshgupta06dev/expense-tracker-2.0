@@ -13,7 +13,9 @@ const debtSlice = createSlice({
     addDebt: (state, action) => {
       state.debts.push(action.payload);
     },
-
+    setDebt: (state, action) => {
+      state.debts = action.payload;
+    },
     deleteDebt: (state, action) => {
       console.log(action.payload.id);
 
@@ -57,6 +59,7 @@ const debtSlice = createSlice({
 
 export const {
   addDebt,
+  setDebt,
   deleteDebt,
   setSelectedDebt,
   settleDebt,

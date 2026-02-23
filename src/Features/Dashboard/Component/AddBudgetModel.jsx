@@ -4,7 +4,11 @@ import { Calendar, DollarSign } from "lucide-react";
 import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import { useDispatch, useSelector } from "react-redux";
-import { addBudget } from "../../addTransactionModel/TransactionSlice";
+import {
+  addBudget,
+  setBudget,
+} from "../../addTransactionModel/TransactionSlice";
+import { supabase } from "../../../Supabase-Client";
 
 function AddBudgetModel({ showBudgetModal, setShowBudgetModal }) {
   const dispatch = useDispatch();
@@ -57,20 +61,48 @@ function AddBudgetModel({ showBudgetModal, setShowBudgetModal }) {
       [name]: value,
     });
   };
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // ✅ normalize timePeriod (VERY IMPORTANT)
+
     const normalizedPeriod = budgetData.timePeriod.toLowerCase();
+
     const finalData = {
-      ...budgetData,
       amount: Number(budgetData.amount),
       timePeriod: normalizedPeriod,
-      category: budgetData.category ? budgetData.category : "All category",
-      id: Date.now(), // unique id
+      date: budgetData.date,
+      category: budgetData.category || "All Categories",
     };
-    dispatch(addBudget(finalData)); // 🔥 SEND TO REDUX
 
-    toast.success("Budget added successfully 💰");
+    if (budgetMode === "edit") {
+      // 🔥 UPDATE
+      const { error } = await supabase
+        .from("budget")
+        .update(finalData)
+        .eq("id", existingBudget.id);
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      dispatch(setBudget({ ...finalData, id: existingBudget.id }));
+      toast.success("Budget updated successfully ✅");
+    } else {
+      // 🔥 INSERT
+      const { data, error } = await supabase
+        .from("budget")
+        .insert(finalData)
+        .select()
+        .single(); // returns inserted row
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      dispatch(addBudget(data));
+      toast.success("Budget added successfully 💰");
+    }
 
     setShowBudgetModal(false);
     resetForm();
@@ -80,6 +112,28 @@ function AddBudgetModel({ showBudgetModal, setShowBudgetModal }) {
     setShowBudgetModal(false);
     resetForm();
   };
+
+  const fetchTransactoins = async function () {
+    const { error, data } = await supabase
+      .from("budget")
+      .select("*")
+      .order("created_at", { ascending: false }) // 🔥 newest first
+      .limit(1); // even better — only fetch 1 row
+
+    if (error) {
+      console.log(error);
+      return;
+    }
+
+    if (data.length > 0) {
+      dispatch(setBudget(data[0]));
+    }
+
+    console.log("this is a supabase data", data);
+  };
+  useEffect(function () {
+    fetchTransactoins();
+  }, []);
   return (
     <form onSubmit={handleSubmit}>
       {" "}

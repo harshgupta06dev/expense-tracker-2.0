@@ -8,86 +8,10 @@ import DebtMobile from "./Components/DebtMobile";
 import DebtFooter from "./Components/DebtFooter";
 import DebtModel from "./Components/DebtModel";
 import DebtSettle from "./Components/DebtSettle";
-import { CheckCircle } from "lucide-react";
 import { useSelector } from "react-redux";
 import EditDebtModal from "./Components/EditDebtModal";
 
 export default function DebtTracker() {
-  const [debts, setDebts] = useState([
-    {
-      id: 1,
-      type: "owed_to_me",
-      person: "John Smith",
-      amount: 250,
-      paid: 0,
-      description: "Lunch money",
-      date: "2025-01-15",
-    },
-    {
-      id: 2,
-      type: "i_owe",
-      person: "Sarah Wilson",
-      amount: 180,
-      paid: 50,
-      description: "Concert tickets",
-      date: "2025-01-18",
-    },
-    {
-      id: 3,
-      type: "credit",
-      person: "Electronics Store",
-      amount: 899,
-      paid: 200,
-      description: "Laptop purchase",
-      date: "2025-01-10",
-    },
-    {
-      id: 4,
-      type: "owed_to_me",
-      person: "Mike Brown",
-      amount: 75,
-      paid: 0,
-      description: "Gas money",
-      date: "2025-01-20",
-    },
-    {
-      id: 5,
-      type: "i_owe",
-      person: "Lisa Chen",
-      amount: 45,
-      paid: 0,
-      description: "Movie tickets",
-      date: "2025-01-22",
-    },
-    {
-      id: 6,
-      type: "credit",
-      person: "Furniture Mall",
-      amount: 450,
-      paid: 450,
-      description: "Office chair",
-      date: "2025-01-12",
-      settled: true,
-    },
-    {
-      id: 7,
-      type: "owed_to_me",
-      person: "David Lee",
-      amount: 320,
-      paid: 100,
-      description: "Birthday gift share",
-      date: "2025-01-25",
-    },
-    {
-      id: 8,
-      type: "i_owe",
-      person: "Emma Watson",
-      amount: 95,
-      paid: 0,
-      description: "Dinner split",
-      date: "2025-01-26",
-    },
-  ]);
   const debtsList = useSelector((state) => state.debt.debts);
   const [activeTab, setActiveTab] = useState("debt");
   const [showModal, setShowModal] = useState(false);
@@ -95,66 +19,18 @@ export default function DebtTracker() {
   const [selectedDebt, setSelectedDebt] = useState(null);
   const [settleAmount, setSettleAmount] = useState("");
   const [formType, setFormType] = useState("owed_to_me");
-  const [formPerson, setFormPerson] = useState("");
-  const [formAmount, setFormAmount] = useState("");
-  const [formDesc, setFormDesc] = useState("");
-  const [formDate, setFormDate] = useState("");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const activeDebts = debts.filter((d) => {
-    return !d.settled;
-  });
-  const totalOwedToMe = activeDebts
-    .filter((d) => d.type === "owed_to_me")
-    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
-  const totalIOwe = activeDebts
-    .filter((d) => d.type === "i_owe")
-    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
-  const totalCredit = activeDebts
-    .filter((d) => d.type === "credit")
-    .reduce((sum, d) => sum + (d.amount - d.paid), 0);
-  const netBalance = totalOwedToMe - totalIOwe - totalCredit;
 
   const itemsPerPage = 5;
-  const totalPages = Math.ceil(debts.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedDebts = debts.slice(startIndex, startIndex + itemsPerPage);
-
-  const handleSubmit = () => {
-    if (!formPerson || !formAmount) return;
-    setDebts([
-      ...debts,
-      {
-        id: Date.now(),
-        type: formType,
-        person: formPerson,
-        amount: parseFloat(formAmount),
-        paid: 0,
-        description: formDesc,
-        date: formDate,
-      },
-    ]);
-    setFormType("owed_to_me");
-    setFormPerson("");
-    setFormAmount("");
-    setFormDesc("");
-    setFormDate("");
-    setShowModal(false);
-  };
 
   const openSettleModal = (debt) => {
     setSelectedDebt(debt);
     setSettleAmount("");
     setShowSettleModal(true);
-  };
-
-  const removeDebt = (id) => {
-    const newDebts = debts.filter((d) => d.id !== id);
-    setDebts(newDebts);
-    const newTotalPages = Math.ceil(newDebts.length / itemsPerPage);
-    if (currentPage > newTotalPages && newTotalPages > 0)
-      setCurrentPage(newTotalPages);
   };
 
   const getTypeLabel = (type) => {
@@ -210,42 +86,37 @@ export default function DebtTracker() {
             </div>
             {/* Desktop / tablet table (hidden on small) */}
             <DebtDesktop
-              paginatedDebts={paginatedDebts}
               getTypeLabel={getTypeLabel}
               setShowSettleModal={setShowSettleModal}
               getSettleButtonText={getSettleButtonText}
-              removeDebt={removeDebt}
               setShowEditModal={setShowEditModal}
             />
             {/* Mobile list (visible only on small screens) */}
             <DebtMobile
-              paginatedDebts={paginatedDebts}
               getTypeLabel={getTypeLabel}
               openSettleModal={openSettleModal}
               getSettleButtonText={getSettleButtonText}
-              removeDebt={removeDebt}
             />
             {/* Footer / pagination */}
             <DebtFooter
               startIndex={startIndex}
               itemsPerPage={itemsPerPage}
-              debts={debts}
               currentPage={currentPage}
               setCurrentPage={setCurrentPage}
-              totalPages={totalPages}
             />
             {/* edit Debt model */}
           </div>
         </div>
       </div>
       {/* Add Debt Modal */}
-      {showModal && (
-        <DebtModel
-          setFormType={setFormType}
-          formType={formType}
-          setShowModal={setShowModal}
-        />
-      )}
+
+      <DebtModel
+        setFormType={setFormType}
+        formType={formType}
+        setShowModal={setShowModal}
+        showModal={showModal}
+      />
+
       {/* Settle Modal */}
       {showSettleModal && (
         <DebtSettle

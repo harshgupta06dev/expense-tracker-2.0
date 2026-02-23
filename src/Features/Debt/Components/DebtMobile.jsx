@@ -1,6 +1,6 @@
 import { Trash2 } from "lucide-react";
 import { useSelector } from "react-redux";
-
+import { CheckCircle } from "lucide-react";
 function DebtMobile({
   getTypeLabel,
   openSettleModal,

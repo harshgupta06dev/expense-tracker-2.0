@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-import { Menu, Calendar } from "lucide-react";
+import { Menu, Calendar, ChessKing } from "lucide-react";
 
 import SummaryCard from "./Component/SummaryCard";
 import CategoryPieChart from "../../Components/CategoryPieChart";
@@ -13,6 +13,7 @@ import AddTransactionBtn from "../../Components/AddTransactionBtn";
 
 import DateFilters from "../../Components/DateFilter";
 import MobileDateFilter from "../../Components/MobileDateFilter";
+import { useSelector } from "react-redux";
 
 const Dashboard = () => {
   const [showAddModal, setShowAddModal] = useState(false);
@@ -20,7 +21,8 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-
+  const list = useSelector((state) => state.transactions.list);
+  // console.log("this is my list data", list);
   return (
     <div className="flex h-screen bg-slate-900 overflow-hidden">
       {/* Sidebar */}
