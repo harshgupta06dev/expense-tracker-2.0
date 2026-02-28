@@ -10,7 +10,6 @@ import {
   updateTransaction,
 } from "./TransactionSlice";
 import { supabase } from "../../Supabase-Client";
-import { selectTransactions } from "../Dashboard/DashboardSlice";
 
 function AddTransactionModel({ showAddModal, setShowAddModal }) {
   const dispatch = useDispatch();

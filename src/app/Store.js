@@ -1,10 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import transactionReducer from "../Features/addTransactionModel/TransactionSlice";
 import debtReducer from "../Features/Debt/DebtSlice";
+import authSlice from "../Features/Authentication/AuthenticationSlice";
+
 export const store = configureStore({
   reducer: {
     transactions: transactionReducer,
     debt: debtReducer,
+    auth: authSlice,
   },
 });
 //
