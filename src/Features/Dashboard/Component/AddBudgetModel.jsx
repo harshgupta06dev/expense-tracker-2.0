@@ -65,12 +65,15 @@ function AddBudgetModel({ showBudgetModal, setShowBudgetModal }) {
     e.preventDefault();
 
     const normalizedPeriod = budgetData.timePeriod.toLowerCase();
-
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const finalData = {
       amount: Number(budgetData.amount),
       timePeriod: normalizedPeriod,
       date: budgetData.date,
       category: budgetData.category || "All Categories",
+      user_id: user.id,
     };
 
     if (budgetMode === "edit") {

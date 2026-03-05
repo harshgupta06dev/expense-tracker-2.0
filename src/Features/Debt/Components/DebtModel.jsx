@@ -60,10 +60,13 @@ function DebtModel({ showModal, setShowModal }) {
       toast.error("Please select Type and Category");
       return;
     }
-
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
     const finalData = {
       ...formData,
       amount: Number(formData.amount),
+      user_id: user.id,
     };
     const { error } = await supabase.from("Debt").insert(finalData).single();
     if (error) return console.error(error);

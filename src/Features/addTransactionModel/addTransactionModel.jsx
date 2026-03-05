@@ -116,9 +116,14 @@ function AddTransactionModel({ showAddModal, setShowAddModal }) {
       toast.success("Transaction updated ✅");
     } else {
       // ✅ INSERT for new transaction
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
       const { error } = await supabase.from("transactions").insert({
         ...finalData,
         id: Date.now(), // or better: let database generate id
+        user_id: user.id,
       });
 
       if (error) return console.error(error);

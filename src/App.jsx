@@ -5,7 +5,7 @@ import Analytics from "./Features/Analytics/Analytics";
 import Debt from "./Features/Debt/Debt";
 import SignUp from "./Features/Authentication/SignUp";
 import LoginPage from "./Features/Authentication/Login";
-import NotFound from "./NotFound";
+
 import { useEffect, useState } from "react";
 import { supabase } from "./Supabase-Client";
 function App() {

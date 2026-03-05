@@ -21,7 +21,7 @@ import { supabase } from "../../Supabase-Client";
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const state = useSelector((state) => state.auth);
-  console.log(state);
+
   const {
     register,
     handleSubmit,
@@ -29,13 +29,18 @@ const LoginPage = () => {
     reset,
   } = useForm();
   const onSubmit = async (data) => {
+    console.log("this is a data", data);
     const { error } = await supabase.auth.signInWithPassword({
-      email: data.emailAddress,
+      email: data.email,
       password: data.password,
     });
 
     if (error) {
-      toast.error(error.message);
+      if (error.message === "Invalid login credentials") {
+        toast.error("Password or Email is Incorrect");
+      } else {
+        toast.error(error.message);
+      }
       return;
     }
 

@@ -37,6 +37,7 @@ const SignupPage = () => {
   } = useForm();
 
   const onSubmit = async (data) => {
+    console.log("this ", data);
     try {
       setLoading(true);
 
