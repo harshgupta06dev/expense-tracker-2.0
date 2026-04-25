@@ -1,4 +1,4 @@
-import { supabase } from "../supabaseClient";
+import { supabase } from "../../Supabase-Client";
 import React, { useState } from "react";
 import {
   Eye,
@@ -14,6 +14,7 @@ import {
   Sparkles,
   CheckCircle2,
 } from "lucide-react";
+
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
