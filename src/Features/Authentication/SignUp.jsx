@@ -1,3 +1,4 @@
+import { supabase } from "../supabaseClient";
 import React, { useState } from "react";
 import {
   Eye,
@@ -29,9 +30,21 @@ const SignupPage = () => {
     reset,
   } = useForm();
 
-  const onSubmit = (data) => {
-    console.log(data);
-    toast.success("Account created successfully");
+  const onSubmit = async (data) => {
+    const { email, password } = data;
+
+    const { user, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Check your email for confirmation!");
+
     reset();
   };
   const onError = (errors) => console.log(errors);
