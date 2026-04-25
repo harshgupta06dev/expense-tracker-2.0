@@ -10,8 +10,31 @@ import {
 import { Link } from "react-router-dom";
 import { supabase } from "../Supabase-Client";
 import toast from "react-hot-toast";
+import { useEffect, useState } from "react";
 
 function Sidebar({ activeTab, setSidebarOpen, setActiveTab, sidebarOpen }) {
+  const [email, setEmail] = useState(null);
+  const [name, setName] = useState("");
+  console.log("this is a name", name);
+  useEffect(() => {
+    const getUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (error) {
+        console.log("User invalid, logging out...");
+        await supabase.auth.signOut();
+      }
+      if (user) {
+        setEmail(user);
+        setName(user?.user_metadata.name);
+      }
+    };
+
+    getUser();
+  }, []);
+
   const menuItems = [
     { id: "dashboard", name: "Dashboard", icon: Home },
     { id: "transactions", name: "Transactions", icon: List },
@@ -27,7 +50,7 @@ function Sidebar({ activeTab, setSidebarOpen, setActiveTab, sidebarOpen }) {
       aria-label="Sidebar"
       className={`${
         sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      } lg:translate-x-0 fixed lg:static top-0 left-0 z-50 w-64 h-screen bg-slate-800 border-r border-slate-700 transition-transform duration-300`}
+      } lg:translate-x-0 fixed lg:sticky top-0 left-0 z-50 w-64 h-screen bg-slate-800 border-r border-slate-700 transition-transform duration-300`}
     >
       <div className="flex flex-col h-full">
         {/* Logo */}
@@ -84,10 +107,10 @@ function Sidebar({ activeTab, setSidebarOpen, setActiveTab, sidebarOpen }) {
             </div>
             <div className="min-w-0">
               <div className="text-sm font-medium text-white truncate">
-                John Doe
+                {name ? name : "Anonymus User"}
               </div>
               <div className="text-xs text-slate-400 truncate">
-                john@example.com
+                {email?.email}
               </div>
             </div>
           </div>

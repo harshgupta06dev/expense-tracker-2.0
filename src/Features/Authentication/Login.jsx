@@ -12,15 +12,16 @@ import {
   PieChart,
   Sparkles,
   CheckCircle2,
+  Loader2,
 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { supabase } from "../../Supabase-Client";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const state = useSelector((state) => state.auth);
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     register,
@@ -28,25 +29,73 @@ const LoginPage = () => {
     formState: { errors },
     reset,
   } = useForm();
+
   const onSubmit = async (data) => {
-    console.log("this is a data", data);
-    const { error } = await supabase.auth.signInWithPassword({
-      email: data.email,
-      password: data.password,
-    });
+    setIsLoading(true);
+    try {
+      // ── Step 1: check if the email is registered ──────────────────────────
+      // fetchSignInMethodsForEmail isn't available in Supabase, so we attempt
+      // a password-less OTP just to probe whether the user exists.
+      // A cleaner (and recommended) approach: call your own RPC or just rely
+      // on the specific error code Supabase returns.
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email: data.email,
+        password: data.password,
+      });
 
-    if (error) {
-      if (error.message === "Invalid login credentials") {
-        toast.error("Password or Email is Incorrect");
-      } else {
-        toast.error(error.message);
+      if (signInError) {
+        // Supabase v2 returns "Invalid login credentials" for both
+        // "wrong password" AND "email not found". We disambiguate by
+        // attempting a magic-link send — if the email doesn't exist
+        // Supabase returns error.message containing "User not found".
+        if (signInError.message === "Invalid login credentials") {
+          const { error: otpError } = await supabase.auth.signInWithOtp({
+            email: data.email,
+            options: { shouldCreateUser: false }, // <-- key: won't create a new user
+          });
+
+          if (
+            otpError &&
+            (otpError.message.toLowerCase().includes("user not found") ||
+              otpError.message.toLowerCase().includes("email not found") ||
+              otpError.status === 422)
+          ) {
+            // Email is not registered at all
+            toast.error(
+              "No account found with this email. Please sign up first.",
+            );
+          } else {
+            // Email exists but password is wrong
+            toast.error("Incorrect password. Please try again.");
+          }
+        } else {
+          toast.error(signInError.message);
+        }
+        return;
       }
-      return;
-    }
 
-    toast.success("Login Successfully");
-    reset();
+      // ── Step 2: Login succeeded — keep loading until auth state propagates ─
+      // The useSelector / onAuthStateChange listener in your app will fire;
+      // we stay in the loading state here and let the router redirect.
+      // If you want to manually wait for the session, do it like this:
+      await new Promise((resolve) => {
+        const { data: listener } = supabase.auth.onAuthStateChange(
+          (event, session) => {
+            if (event === "SIGNED_IN" && session) {
+              listener.subscription.unsubscribe();
+              resolve();
+            }
+          },
+        );
+      });
+
+      toast.success("Logged in successfully!");
+      reset();
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   const onError = (errors) => console.log(errors);
 
   const inputCls =
@@ -69,14 +118,18 @@ const LoginPage = () => {
           0%,100% { transform: translateY(0px); }
           50%      { transform: translateY(-5px); }
         }
-        @keyframes barGrow {
-          from { transform: scaleY(0); }
-          to   { transform: scaleY(1); }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+        @keyframes overlayFade {
+          from { opacity: 0; }
+          to   { opacity: 1; }
         }
         .animate-blob1 { animation: blob1 9s ease-in-out infinite; }
         .animate-blob2 { animation: blob2 11s ease-in-out infinite; }
         .animate-float { animation: floatUp 5s ease-in-out infinite; }
-        .bar { transform-origin: bottom; animation: barGrow 1s ease-out both; }
+        .animate-spin-slow { animation: spin 0.8s linear infinite; }
+        .loading-overlay { animation: overlayFade 0.2s ease forwards; }
         .feature-card {
           transition: transform 0.22s ease, background 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
         }
@@ -88,26 +141,48 @@ const LoginPage = () => {
         }
       `}</style>
 
+      {/* ── Full-screen loading overlay ──────────────────────────────────────── */}
+      {isLoading && (
+        <div className="loading-overlay fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0d1321]/80 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-4 bg-[#1a2234]/90 border border-slate-700/40 rounded-2xl px-10 py-8 shadow-[0_25px_80px_rgba(0,0,0,0.7)]">
+            <div className="relative w-12 h-12">
+              {/* Outer ring */}
+              <span className="absolute inset-0 rounded-full border-2 border-blue-500/20" />
+              {/* Spinning arc */}
+              <Loader2
+                size={48}
+                className="animate-spin-slow text-blue-500 absolute inset-0"
+              />
+            </div>
+            <div className="text-center">
+              <p className="text-white font-semibold text-sm">
+                Signing you in…
+              </p>
+              <p className="text-slate-500 text-xs mt-1">
+                Loading your dashboard
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="min-h-screen flex relative overflow-hidden bg-[#0d1321]">
         {/* ══ LEFT PANEL ══ */}
-        <div className="hidden lg:flex flex-col w-[44%] relative overflow-hidden bg-gradient-to-br from-[#0f1a2e] via-[#0d1729] to-[#091220] p-10">
-          {/* Animated blobs */}
+        <div className="hidden lg:flex flex-col w-[44%] relative overflow-hidden bg-linear-to-br from-[#0f1a2e] via-[#0d1729] to-[#091220] p-10">
           <div className="animate-blob1 absolute -top-24 -left-20 w-[400px] h-[400px] rounded-full bg-blue-600/10 blur-[100px] pointer-events-none" />
           <div className="animate-blob2 absolute -bottom-20 -right-16 w-[350px] h-[350px] rounded-full bg-blue-800/15 blur-[90px] pointer-events-none" />
-
-          {/* Subtle grid */}
           <div
             className="absolute inset-0 opacity-[0.022] pointer-events-none"
             style={{
               backgroundImage:
-                "linear-gradient(rgba(148,163,184,1) 1px, transparent 1px), linear-gradient(90deg, rgba(148,163,184,1) 1px, transparent 1px)",
+                "linear-linear(rgba(148,163,184,1) 1px, transparent 1px), linear-linear(90deg, rgba(148,163,184,1) 1px, transparent 1px)",
               backgroundSize: "48px 48px",
             }}
           />
 
           {/* Logo */}
           <div className="relative z-10 flex items-center gap-3 mb-auto">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
               <Wallet size={18} className="text-white" />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">
@@ -117,7 +192,6 @@ const LoginPage = () => {
 
           {/* Main content */}
           <div className="relative z-10 flex flex-col gap-6 flex-1 justify-center py-8">
-            {/* Headline */}
             <div>
               <h2 className="text-[34px] font-bold text-white leading-tight mb-2">
                 Welcome <span className="text-blue-400">back</span>
@@ -134,7 +208,6 @@ const LoginPage = () => {
               </div>
             </div>
 
-            {/* Feature cards */}
             <div className="flex flex-col gap-2.5">
               {[
                 {
@@ -158,7 +231,7 @@ const LoginPage = () => {
               ].map(({ icon, bg, title, desc }) => (
                 <div
                   key={title}
-                  className="feature-card flex items-center gap-4 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3.5 cursor-default"
+                  className="feature-card flex items-center gap-4 bg-white/4 border border-white/6 rounded-xl px-4 py-3.5 cursor-default"
                 >
                   <div
                     className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center shrink-0`}
@@ -175,8 +248,7 @@ const LoginPage = () => {
               ))}
             </div>
 
-            {/* What's waiting for you — 3 bullets only */}
-            <div className="bg-white/[0.03] border border-white/[0.06] rounded-xl px-4 py-3.5">
+            <div className="bg-white/3 border border-white/6 rounded-xl px-4 py-3.5">
               <p className="text-slate-500 text-[11px] font-semibold uppercase tracking-wider mb-3">
                 What's waiting for you
               </p>
@@ -203,8 +275,7 @@ const LoginPage = () => {
             </div>
           </div>
 
-          {/* Bottom trust signals */}
-          <div className="relative z-10 flex items-center gap-5 pt-4 border-t border-white/[0.05]">
+          <div className="relative z-10 flex items-center gap-5 pt-4 border-t border-white/5">
             {["No hidden fees", "Cancel anytime", "256-bit encrypted"].map(
               (t) => (
                 <div key={t} className="flex items-center gap-1.5">
@@ -217,7 +288,7 @@ const LoginPage = () => {
         </div>
 
         {/* Vertical divider */}
-        <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-slate-700/40 to-transparent" />
+        <div className="hidden lg:block w-px bg-linear-to-b from-transparent via-slate-700/40 to-transparent" />
 
         {/* ══ RIGHT PANEL ══ */}
         <div className="flex-1 flex items-center justify-center px-6 py-10 relative">
@@ -227,15 +298,15 @@ const LoginPage = () => {
           <div className="w-full max-w-[420px] relative z-10">
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center justify-center gap-2.5 mb-8">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center">
                 <Wallet size={16} className="text-white" />
               </div>
               <span className="text-lg font-bold text-white">ExpenseFlow</span>
             </div>
 
             {/* Form card */}
-            <div className="bg-gradient-to-b from-[#1a2234]/95 to-[#141c2e]/95 border border-slate-700/40 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-sm">
-              <div className="h-[3px] bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600" />
+            <div className="bg-linear-to-b from-[#1a2234]/95 to-[#141c2e]/95 border border-slate-700/40 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-sm">
+              <div className="h-[3px] bg-linear-to-r from-blue-600 via-blue-400 to-blue-600" />
 
               <div className="px-7 pt-6 pb-7">
                 <div className="mb-6">
@@ -276,6 +347,7 @@ const LoginPage = () => {
                         })}
                         placeholder="Enter your email"
                         className={`${inputCls} pl-10 pr-4`}
+                        disabled={isLoading}
                       />
                     </div>
                     {errors?.email && (
@@ -307,11 +379,13 @@ const LoginPage = () => {
                         })}
                         placeholder="Enter your password"
                         className={`${inputCls} pl-10 pr-11`}
+                        disabled={isLoading}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
                         className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-600 hover:text-slate-300 transition-colors"
+                        disabled={isLoading}
                       >
                         {showPassword ? (
                           <Eye size={15} />
@@ -341,10 +415,20 @@ const LoginPage = () => {
                   {/* Login button */}
                   <button
                     type="submit"
-                    className="w-full flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold py-3 text-sm rounded-xl shadow-[0_3px_12px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_18px_rgba(37,99,235,0.35)] transition-all duration-200 active:scale-[0.98] cursor-pointer"
+                    disabled={isLoading}
+                    className="w-full flex items-center justify-center gap-2 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 disabled:from-blue-800 disabled:to-blue-700 disabled:cursor-not-allowed text-white font-semibold py-3 text-sm rounded-xl shadow-[0_3px_12px_rgba(37,99,235,0.25)] hover:shadow-[0_4px_18px_rgba(37,99,235,0.35)] transition-all duration-200 active:scale-[0.98] cursor-pointer"
                   >
-                    <LogIn size={15} />
-                    Login
+                    {isLoading ? (
+                      <>
+                        <Loader2 size={15} className="animate-spin-slow" />
+                        Signing in…
+                      </>
+                    ) : (
+                      <>
+                        <LogIn size={15} />
+                        Login
+                      </>
+                    )}
                   </button>
                 </form>
 

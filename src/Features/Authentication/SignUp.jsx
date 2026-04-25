@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-// eslint-disable-next-line no-unused-vars
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 import {
   Eye,
   EyeOff,
@@ -18,15 +16,10 @@ import {
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 import { Link } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { addUserData } from "./AuthenticationSlice";
-import { supabase } from "../../Supabase-Client";
+
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const dispatch = useDispatch();
-  const [loading, setLoading] = useState(false);
-  const state = useSelector((state) => state.auth);
 
   const {
     register,
@@ -36,31 +29,10 @@ const SignupPage = () => {
     reset,
   } = useForm();
 
-  const onSubmit = async (data) => {
-    console.log("this ", data);
-    try {
-      setLoading(true);
-
-      const { error } = await supabase.auth.signUp({
-        email: data.email,
-        password: data.password,
-      });
-
-      if (error) {
-        if (error?.message === "Failed to fetch") {
-          toast.error("Check your internet connection. Unable to sign up.");
-          return;
-        }
-        toast.error(error.message);
-
-        return;
-      }
-      dispatch(addUserData({ name: data.name, signUp: false }));
-      toast.success("Signup Successfully.Check Your Email");
-      reset();
-    } finally {
-      setLoading(false);
-    }
+  const onSubmit = (data) => {
+    console.log(data);
+    toast.success("Account created successfully");
+    reset();
   };
   const onError = (errors) => console.log(errors);
 
@@ -69,19 +41,37 @@ const SignupPage = () => {
 
   return (
     <>
-      <div className="min-h-screen flex relative overflow-hidden bg-[#0d1321]">
-        {/* ══ LEFT PANEL ══ */}
-        <motion.div
-          initial={{ x: -120, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="hidden lg:flex flex-col w-[44%] relative overflow-hidden bg-linear-to-br from-[#0f1a2e] via-[#0d1729] to-[#091220] p-10"
-        >
-          {/* Animated blobs */}
-          <div className="animate-blob1 absolute -top-24 -left-20 w-100 h-100 rounded-full bg-blue-600/10 blur-[100px] pointer-events-none" />
-          <div className="animate-blob2 absolute -bottom-20 -right-16 w-87.5 h-87.6 rounded-full bg-blue-800/15 blur-[90px] pointer-events-none" />
+      <style>{`
+        @keyframes blob1 {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33%      { transform: translate(30px,-20px) scale(1.08); }
+          66%      { transform: translate(-20px,25px) scale(0.95); }
+        }
+        @keyframes blob2 {
+          0%,100% { transform: translate(0,0) scale(1); }
+          33%      { transform: translate(-25px,20px) scale(1.06); }
+          66%      { transform: translate(20px,-30px) scale(0.96); }
+        }
+        .animate-blob1 { animation: blob1 9s ease-in-out infinite; will-change: transform; }
+        .animate-blob2 { animation: blob2 11s ease-in-out infinite; will-change: transform; }
+        .feature-card {
+          transition: transform 0.22s ease, background 0.22s ease,
+                      border-color 0.22s ease, box-shadow 0.22s ease;
+          will-change: transform;
+        }
+        .feature-card:hover {
+          transform: translateX(6px);
+          background: rgba(255,255,255,0.07) !important;
+          border-color: rgba(59,130,246,0.28) !important;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+        }
+      `}</style>
 
-          {/* Subtle grid */}
+      <div className="min-h-screen flex relative overflow-hidden bg-[#0d1321]">
+        {/* LEFT PANEL */}
+        <div className="hidden lg:flex flex-col w-[44%] relative overflow-hidden bg-gradient-to-br from-[#0f1a2e] via-[#0d1729] to-[#091220] p-10">
+          <div className="animate-blob1 absolute -top-24 -left-20 w-[400px] h-[400px] rounded-full bg-blue-600/10 blur-[100px] pointer-events-none" />
+          <div className="animate-blob2 absolute -bottom-20 -right-16 w-[350px] h-[350px] rounded-full bg-blue-800/15 blur-[90px] pointer-events-none" />
           <div
             className="absolute inset-0 opacity-[0.022] pointer-events-none"
             style={{
@@ -93,7 +83,7 @@ const SignupPage = () => {
 
           {/* Logo */}
           <div className="relative z-10 flex items-center gap-3 mb-auto">
-            <div className="w-10 h-10 rounded-xl bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center shadow-[0_0_20px_rgba(59,130,246,0.4)]">
               <Wallet size={18} className="text-white" />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">
@@ -101,9 +91,8 @@ const SignupPage = () => {
             </span>
           </div>
 
-          {/* Main content — fills all space between logo and bottom */}
+          {/* Main content */}
           <div className="relative z-10 flex flex-col gap-6 flex-1 justify-center py-8">
-            {/* Headline */}
             <div>
               <h2 className="text-[34px] font-bold text-white leading-tight mb-2">
                 Take control of your{" "}
@@ -121,7 +110,6 @@ const SignupPage = () => {
               </div>
             </div>
 
-            {/* Feature cards */}
             <div className="flex flex-col gap-2.5">
               {[
                 {
@@ -145,7 +133,7 @@ const SignupPage = () => {
               ].map(({ icon, bg, title, desc }) => (
                 <div
                   key={title}
-                  className="feature-card flex items-center gap-4 bg-white/4 border border-white/6 rounded-xl px-4 py-3.5 cursor-default"
+                  className="feature-card flex items-center gap-4 bg-white/[0.04] border border-white/[0.06] rounded-xl px-4 py-3.5 cursor-default"
                 >
                   <div
                     className={`w-9 h-9 rounded-lg ${bg} flex items-center justify-center shrink-0`}
@@ -161,12 +149,9 @@ const SignupPage = () => {
                 </div>
               ))}
             </div>
-
-            {/* ── Mini dashboard card — compact, low visual weight ── */}
           </div>
 
-          {/* Bottom trust signals — always pinned to bottom */}
-          <div className="relative z-10 flex items-center gap-5 pt-4 border-t border-white/5">
+          <div className="relative z-10 flex items-center gap-5 pt-4 border-t border-white/[0.05]">
             {["No hidden fees", "Cancel anytime", "256-bit encrypted"].map(
               (t) => (
                 <div key={t} className="flex items-center gap-1.5">
@@ -176,34 +161,28 @@ const SignupPage = () => {
               ),
             )}
           </div>
-        </motion.div>
+        </div>
 
         {/* Vertical divider */}
-        <div className="hidden lg:block w-px bg-linear-to-b from-transparent via-slate-700/40 to-transparent" />
+        <div className="hidden lg:block w-px bg-gradient-to-b from-transparent via-slate-700/40 to-transparent" />
 
-        {/* ══ RIGHT PANEL ══ */}
-        <motion.div
-          initial={{ x: 120, opacity: 0 }}
-          animate={{ x: 0, opacity: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.2 }}
-          className="flex-1 flex items-center justify-center px-6 py-10 relative"
-        >
-          <div className="absolute top-0 right-0 w-95 h-95 rounded-full bg-blue-900/10 blur-[100px] pointer-events-none" />
-          <div className="absolute bottom-0 left-0 w-70 h-70 rounded-full bg-slate-800/20 blur-[80px] pointer-events-none" />
+        {/* RIGHT PANEL */}
+        <div className="flex-1 flex items-center justify-center px-6 py-10 relative">
+          <div className="absolute top-0 right-0 w-[380px] h-[380px] rounded-full bg-blue-900/10 blur-[100px] pointer-events-none" />
+          <div className="absolute bottom-0 left-0 w-[280px] h-[280px] rounded-full bg-slate-800/20 blur-[80px] pointer-events-none" />
 
-          <div className="w-full max-w-105 relative z-10">
+          <div className="w-full max-w-[420px] relative z-10">
             {/* Mobile logo */}
             <div className="lg:hidden flex items-center justify-center gap-2.5 mb-8">
-              <div className="w-9 h-9 rounded-xl bg-linear-to-br from-blue-500 to-blue-700 flex items-center justify-center">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-blue-700 flex items-center justify-center">
                 <Wallet size={16} className="text-white" />
               </div>
               <span className="text-lg font-bold text-white">ExpenseFlow</span>
             </div>
 
             {/* Form card */}
-            <div className="bg-linear-to-b from-[#1a2234]/95 to-[#141c2e]/95 border border-slate-700/40 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-sm">
-              <div className="h-0.75 bg-linear-to-r from-blue-600 via-blue-400 to-blue-600" />
-
+            <div className="bg-gradient-to-b from-[#1a2234]/95 to-[#141c2e]/95 border border-slate-700/40 rounded-2xl shadow-[0_25px_80px_rgba(0,0,0,0.6)] overflow-hidden backdrop-blur-sm">
+              <div className="h-[3px] bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600" />
               <div className="px-7 pt-6 pb-7">
                 <div className="mb-5">
                   <h1 className="text-[22px] font-bold text-white tracking-tight mb-1">
@@ -379,33 +358,13 @@ const SignupPage = () => {
 
                   {/* Buttons */}
                   <div className="flex gap-3 mt-1">
-                    <>
-                      {/* 🔥 Full Screen Loader */}
-                      {loading && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm bg-black/30">
-                          <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-                        </div>
-                      )}
-
-                      {/* 🟦 Your Button */}
-                      <button
-                        type="submit"
-                        disabled={loading}
-                        className="flex-1 flex items-center justify-center gap-2 
-               bg-linear-to-r from-blue-600 to-blue-500 
-               hover:from-blue-500 hover:to-blue-400 
-               text-white font-semibold py-3 text-sm rounded-xl 
-               shadow-[0_4px_18px_rgba(37,99,235,0.4)] 
-               hover:shadow-[0_6px_24px_rgba(37,99,235,0.58)] 
-               transition-all duration-200 
-               active:scale-[0.98] 
-               disabled:opacity-70 disabled:cursor-not-allowed"
-                      >
-                        <UserPlus size={15} />
-                        Create Account
-                      </button>
-                    </>
-
+                    <button
+                      type="submit"
+                      className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-semibold py-3 text-sm rounded-xl shadow-[0_4px_18px_rgba(37,99,235,0.4)] hover:shadow-[0_6px_24px_rgba(37,99,235,0.58)] transition-all duration-200 active:scale-[0.98] cursor-pointer"
+                    >
+                      <UserPlus size={15} />
+                      Create Account
+                    </button>
                     <button
                       type="button"
                       onClick={() => reset()}
@@ -416,7 +375,6 @@ const SignupPage = () => {
                   </div>
                 </form>
 
-                {/* Divider */}
                 <div className="flex items-center gap-3 mt-5 mb-3">
                   <div className="flex-1 h-px bg-slate-700/40" />
                   <span className="text-slate-600 text-xs">
@@ -425,9 +383,8 @@ const SignupPage = () => {
                   <div className="flex-1 h-px bg-slate-700/40" />
                 </div>
 
-                {/* Login link */}
                 <Link
-                  to={"/login"}
+                  to="/login"
                   className="block w-full text-center py-2.5 text-blue-400 hover:text-blue-300 font-medium text-sm rounded-xl border border-blue-800/40 hover:border-blue-600/50 hover:bg-blue-900/10 transition-all duration-200"
                 >
                   Sign in to your account →
@@ -446,7 +403,7 @@ const SignupPage = () => {
               </div>
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </>
   );

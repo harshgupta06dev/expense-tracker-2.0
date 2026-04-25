@@ -21,8 +21,7 @@ const Dashboard = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showMobileFilter, setShowMobileFilter] = useState(false);
-  const list = useSelector((state) => state.transactions.list);
-  // console.log("this is my list data", list);
+  const UserData = useSelector((state) => state.auth);
   return (
     <div className="flex h-screen bg-slate-900 overflow-hidden">
       {/* Sidebar */}
