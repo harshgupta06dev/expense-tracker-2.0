@@ -15,7 +15,7 @@ import {
   filterTransactionsByMonths,
   getLast6Months,
 } from "../AnalyticsSlice";
-function AnalyticsSpendingTrends({ totalIncome, chartHeight }) {
+function AnalyticsSpendingTrends({ chartHeight }) {
   const transactions = useSelector((state) => state.transactions.list);
 
   const last6Months = useSelector(getLast6Months);

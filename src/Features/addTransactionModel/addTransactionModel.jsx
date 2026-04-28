@@ -16,7 +16,6 @@ function AddTransactionModel({ showAddModal, setShowAddModal }) {
   const transactionMode = useSelector(
     (state) => state.transactions.transactionMode,
   );
-  const list = useSelector((state) => state.transactions.list);
   const editingTransaction = useSelector(
     (state) => state.transactions.updateTransaction,
   );

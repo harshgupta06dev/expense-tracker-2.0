@@ -12,9 +12,9 @@ import { Loader2, Sparkles } from "lucide-react";
 const Analytics = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("analytics");
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiInsights, setAiInsights] = useState("");
-  const [userQuestion, setUserQuestion] = useState("");
+  // const [aiLoading, setAiLoading] = useState(false);
+  // const [aiInsights, setAiInsights] = useState("");
+  // const [userQuestion, setUserQuestion] = useState("");
   const [selectedMonth, setSelectedMonth] = useState("Nov 2024");
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -199,51 +199,51 @@ const Analytics = () => {
   const savings = totalIncome - currentData.total;
   const savingsRate = ((savings / totalIncome) * 100).toFixed(1);
 
-  const getAIInsights = async () => {
-    setAiLoading(true);
-    try {
-      const expenseData = {
-        selectedMonth,
-        previousMonth,
-        currentData,
-        previousData,
-        totalIncome,
-        savings,
-        savingsRate,
-        allMonthsData: chartData,
-      };
-      const prompt = userQuestion
-        ? `Based on this expense data for ${selectedMonth}: ${JSON.stringify(
-            expenseData,
-          )}, answer this question: ${userQuestion}. Be specific and use actual numbers in Indian Rupees (₹).`
-        : `Analyze this expense data for ${selectedMonth}: ${JSON.stringify(
-            expenseData,
-          )}. Provide clear, actionable insights.`;
+  // const getAIInsights = async () => {
+  //   setAiLoading(true);
+  //   try {
+  //     const expenseData = {
+  //       selectedMonth,
+  //       previousMonth,
+  //       currentData,
+  //       previousData,
+  //       totalIncome,
+  //       savings,
+  //       savingsRate,
+  //       allMonthsData: chartData,
+  //     };
+  //     const prompt = userQuestion
+  //       ? `Based on this expense data for ${selectedMonth}: ${JSON.stringify(
+  //           expenseData,
+  //         )}, answer this question: ${userQuestion}. Be specific and use actual numbers in Indian Rupees (₹).`
+  //       : `Analyze this expense data for ${selectedMonth}: ${JSON.stringify(
+  //           expenseData,
+  //         )}. Provide clear, actionable insights.`;
 
-      // NOTE: keep your API key secure & handle CORS
-      const response = await fetch("https://api.anthropic.com/v1/messages", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          model: "claude-sonnet-4-20250514",
-          max_tokens: 1000,
-          messages: [{ role: "user", content: prompt }],
-        }),
-      });
-      const data = await response.json();
-      const insights =
-        data.content?.find((item) => item.type === "text")?.text ||
-        data?.completion ||
-        "Unable to generate insights.";
-      setAiInsights(insights);
-      setUserQuestion("");
-    } catch (error) {
-      setAiInsights("Error generating insights. Please try again.");
-      console.error("AI Error:", error);
-    } finally {
-      setAiLoading(false);
-    }
-  };
+  //     // NOTE: keep your API key secure & handle CORS
+  //     const response = await fetch("https://api.anthropic.com/v1/messages", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({
+  //         model: "claude-sonnet-4-20250514",
+  //         max_tokens: 1000,
+  //         messages: [{ role: "user", content: prompt }],
+  //       }),
+  //     });
+  //     const data = await response.json();
+  //     const insights =
+  //       data.content?.find((item) => item.type === "text")?.text ||
+  //       data?.completion ||
+  //       "Unable to generate insights.";
+  //     setAiInsights(insights);
+  //     setUserQuestion("");
+  //   } catch (error) {
+  //     setAiInsights("Error generating insights. Please try again.");
+  //     console.error("AI Error:", error);
+  //   } finally {
+  //     setAiLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     const onResize = () => {
@@ -256,14 +256,7 @@ const Analytics = () => {
   return (
     <div className="min-h-screen bg-slate-900 text-white flex flex-col md:flex-row">
       {/* Mobile Topbar || header for mobile device only */}
-      {/* <MobileHeader
-        selectedMonth={selectedMonth}
-        setSelectedMonth={setSelectedMonth}
-        setShowMonthPicker={setShowMonthPicker}
-        showMonthPicker={showMonthPicker}
-        monthsList={monthsList}
-        setSidebarOpen={setSidebarOpen}
-      /> */}
+
       {/* Sidebar - md+ */}
       <Sidebar
         activeTab={activeTab}
@@ -318,7 +311,7 @@ const Analytics = () => {
         </div>
 
         {/* AI Advisor */}
-        <section className="bg-linear-to-br from-indigo-600 to-purple-600 rounded-2xl p-3 md:p-4">
+        {/* <section className="bg-linear-to-br from-indigo-600 to-purple-600 rounded-2xl p-3 md:p-4">
           <div className="flex items-center gap-2 mb-3">
             <div className="bg-white/20 p-2 rounded-xl">
               <Sparkles className="w-4 h-4 text-white" />
@@ -384,7 +377,7 @@ const Analytics = () => {
               </div>
             )
           )}
-        </section>
+        </section> */}
       </main>
       <AddTransactionModel
         showAddModal={showAddModal}

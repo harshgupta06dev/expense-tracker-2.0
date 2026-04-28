@@ -21,7 +21,7 @@ function BudgetStatus({ setShowBudgetModal }) {
   const budget = useSelector((state) => state.transactions.budgetList);
   const transactions = useSelector(selectFilteredBudgetTransactisons);
   const totalExpenses = useSelector((state) =>
-    selectTotalExpense(state, transactions)
+    selectTotalExpense(state, transactions),
   );
 
   // ===== Budget Exists? =====
@@ -118,8 +118,8 @@ function BudgetStatus({ setShowBudgetModal }) {
                     isOverBudget
                       ? "#ef4444"
                       : ringPercentage > 60
-                      ? "#f59e0b"
-                      : "#22c55e"
+                        ? "#f59e0b"
+                        : "#22c55e"
                   }
                   strokeWidth={isOverBudget ? 8 : 10} // 👈 thinner when overspent
                   fill="none"
@@ -193,18 +193,7 @@ function BudgetStatus({ setShowBudgetModal }) {
                   ${budgetLimit}
                 </span>
               </div>
-              {/* <div className="flex justify-between items-center p-2 bg-slate-700 bg-opacity-50 rounded-lg">
-                <span className="text-slate-300 text-sm">Budget Limit</span>
-                <span className="font-bold text-slate-200 text-sm">
-                  ${budgetLimit}
-                </span>
-              </div> */}
-              {/* <div className="flex justify-between items-center p-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-                <span className="text-red-300 text-sm">Overspent</span>
-                <span className="font-bold text-red-400 text-sm">
-                  ${overspentAmount}
-                </span>
-              </div> */}
+
               <div className="flex justify-between items-center p-2 bg-slate-700 bg-opacity-50 rounded-lg">
                 <span className="text-slate-300 text-sm">Overspent</span>
                 <span className="font-bold text-red-400 text-sm">

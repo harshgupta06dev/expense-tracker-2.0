@@ -15,14 +15,14 @@ function SummaryCard() {
 
   function calculateAvgDailyExpense(transactions) {
     const expenseTransactions = transactions.filter(
-      (tx) => tx.type === "Expense"
+      (tx) => tx.type === "Expense",
     );
 
     if (expenseTransactions.length === 0) return 0;
 
     const totalExpense = expenseTransactions.reduce(
       (sum, tx) => sum + tx.amount,
-      0
+      0,
     );
 
     const uniqueDays = new Set(expenseTransactions.map((tx) => tx.date)).size;

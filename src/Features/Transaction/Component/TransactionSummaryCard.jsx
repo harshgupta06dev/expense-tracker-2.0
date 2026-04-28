@@ -6,8 +6,6 @@ import {
 } from "../../Dashboard/DashboardSlice";
 
 function SummaryCard({ transactions }) {
-  const transaction = useSelector((state) => state.transactions?.list);
-
   const totalIncome = useSelector(selectTotalIncome);
   const totalExpense = useSelector(selectTotalExpense);
 

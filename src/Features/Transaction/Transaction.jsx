@@ -16,7 +16,7 @@ import { selectTypeFilteredTransactions } from "../addTransactionModel/Transacti
 
 const TransactionsPage = () => {
   // const [transactions] = useState(generateSampleData());
-  const [searchTerm, setSearchTerm] = useState("");
+
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);

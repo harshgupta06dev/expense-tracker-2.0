@@ -8,7 +8,6 @@ import {
 import { supabase } from "../../../Supabase-Client";
 
 function TransTableRow({ transaction, formatDate, setShowAddModal }) {
-  const updatedDebt = useSelector((state) => state.debt);
   const dispatch = useDispatch();
   const handleEdit = async function (transaction) {
     setShowAddModal(true);

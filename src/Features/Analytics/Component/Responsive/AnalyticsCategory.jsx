@@ -68,9 +68,6 @@ function AnalyticsCategory({ categories }) {
           const percentage = currentData.total
             ? ((current / currentData.total) * 100).toFixed(1)
             : 0;
-          // console.log(currentData);
-          // console.log(currentData);
-          // consol e.log("this is a category name", category.name);
 
           return (
             <div

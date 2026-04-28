@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload }) => {
 function CategoryPieChart({
   withoutLegend,
   pieRadius,
-  pieData,
+
   chartHeight,
   setShowAddModal,
 }) {
