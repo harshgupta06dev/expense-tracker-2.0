@@ -15,7 +15,6 @@ import { useEffect, useState } from "react";
 function Sidebar({ activeTab, setSidebarOpen, setActiveTab, sidebarOpen }) {
   const [email, setEmail] = useState(null);
   const [name, setName] = useState("");
-  console.log("this is a name", name);
   useEffect(() => {
     const getUser = async () => {
       const {

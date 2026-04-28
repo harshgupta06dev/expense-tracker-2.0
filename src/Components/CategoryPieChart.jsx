@@ -5,15 +5,25 @@ import {
   Cell,
   ResponsiveContainer,
   Tooltip,
-  PieChart,
 } from "recharts";
+import { PieChart as PieChartIcon } from "lucide-react";
 import EmptyCardState from "./EmptyCardState";
 import { selectFilteredTransactions } from "../Features/addTransactionModel/TransactionSlice";
+
+// ✅ Moved outside component — no longer recreated on every render
+const CATEGORY_COLORS = {
+  Food: "#f97316",
+  Transport: "#3b82f6",
+  Shopping: "#a855f7",
+  Housing: "#22c55e",
+  Entertainment: "#ec4899",
+  Healthcare: "#ef4444",
+};
+
 const CustomTooltip = ({ active, payload }) => {
   if (!active || !payload || !payload.length) return null;
 
   const item = payload[0];
-  // payload[0].percent is provided by Recharts for Pie
   const percent =
     item && typeof item.percent === "number"
       ? (item.percent * 100).toFixed(0)
@@ -29,47 +39,41 @@ const CustomTooltip = ({ active, payload }) => {
     </div>
   );
 };
+
+// ✅ Helper function moved outside component
+const buildCategoryPieData = (transactions) => {
+  return Object.values(
+    transactions.reduce((acc, tx) => {
+      if (tx.type !== "Expense") return acc;
+
+      if (!acc[tx.category]) {
+        acc[tx.category] = {
+          name: tx.category,
+          value: 0,
+          color: CATEGORY_COLORS[tx.category] || "#94a3b8",
+        };
+      }
+
+      acc[tx.category].value += tx.amount;
+      return acc;
+    }, {}),
+  );
+};
+
 function CategoryPieChart({
   withoutLegend,
   pieRadius,
-
   chartHeight,
   setShowAddModal,
 }) {
-  const CATEGORY_COLORS = {
-    Food: "#f97316",
-    Transport: "#3b82f6",
-    Shopping: "#a855f7",
-    Housing: "#22c55e",
-    Entertainment: "#ec4899",
-    Healthcare: "#ef4444",
-  };
   const dashboardTransactions = useSelector(selectFilteredTransactions);
-
-  const categoryPieDate = function (transactions) {
-    const categoryPieData = Object.values(
-      transactions.reduce((acc, tx) => {
-        if (tx.type !== "Expense") return acc;
-
-        if (!acc[tx.category]) {
-          acc[tx.category] = {
-            name: tx.category, // 👈 for Pie label
-            value: 0, // 👈 Pie uses this
-            color: CATEGORY_COLORS[tx.category] || "#94a3b8", // default color
-          };
-        }
-
-        acc[tx.category].value += tx.amount;
-        return acc;
-      }, {}),
-    );
-    return categoryPieData;
-  };
   const analyticsTransactions = useSelector(
     (state) => state.transactions.analyticsCurrentData,
   );
-  const DashboardPieData = categoryPieDate(dashboardTransactions);
-  const analyticsPieData = categoryPieDate(analyticsTransactions);
+
+  const DashboardPieData = buildCategoryPieData(dashboardTransactions);
+  const analyticsPieData = buildCategoryPieData(analyticsTransactions);
+
   const hasDashboardCategoryData = DashboardPieData.length > 0;
   const hasAnalyticsCategoryData = analyticsPieData.length > 0;
 
@@ -84,7 +88,7 @@ function CategoryPieChart({
 
             <div style={{ width: "100%", height: chartHeight }}>
               <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
+                <RechartsPieChart>
                   <Pie
                     data={analyticsPieData}
                     cx="50%"
@@ -105,13 +109,12 @@ function CategoryPieChart({
                       <Cell key={`cell-${index}`} fill={entry.color} />
                     ))}
                   </Pie>
-
                   <Tooltip content={<CustomTooltip />} />
-                </PieChart>
+                </RechartsPieChart>
               </ResponsiveContainer>
             </div>
 
-            {/* CUSTOM LEGEND FOR SMALL SCREENS */}
+            {/* Custom legend for small screens */}
             <div className="mt-3 w-full">
               {analyticsPieData.map((item, i) => (
                 <div
@@ -122,11 +125,9 @@ function CategoryPieChart({
                     <span
                       className="w-3 h-3 rounded-full"
                       style={{ background: item.color }}
-                    ></span>
-
+                    />
                     <span className="truncate max-w-[120px]">{item.name}</span>
                   </div>
-
                   <span className="font-medium">₹{item.value}</span>
                 </div>
               ))}
@@ -139,18 +140,15 @@ function CategoryPieChart({
         )
       ) : (
         <div className="col-span-12 lg:col-span-8 bg-slate-800 bg-opacity-50 backdrop-blur-sm rounded-xl p-3 sm:p-4 border border-slate-700">
+          {/* ✅ Fixed: PieChartIcon from lucide-react, not recharts */}
           <h2 className="text-lg font-bold text-white mb-2 flex items-center gap-2">
-            <PieChart className="w-5 h-5 text-blue-400" />
+            <PieChartIcon className="w-5 h-5 text-blue-400" />
             Category-wise Expenses
           </h2>
 
-          {/* Custom Tooltip to show percent + value on hover */}
-          {/* place custom component inside file scope or above return */}
-          {/* Example: const CustomTooltip = ({ active, payload }) => { ... } */}
-
           {hasDashboardCategoryData ? (
             <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-              {/* LEFT: Pie Chart */}
+              {/* Left: Pie Chart */}
               <div className="w-full lg:w-1/2 flex items-center justify-center">
                 <div className="w-full max-w-60 sm:max-w-[280px] aspect-square">
                   <ResponsiveContainer width="100%" height="100%">
@@ -172,7 +170,7 @@ function CategoryPieChart({
                 </div>
               </div>
 
-              {/* RIGHT: Legend */}
+              {/* Right: Legend */}
               <div className="w-full lg:w-1/2 space-y-3">
                 {DashboardPieData.map((item) => (
                   <div
@@ -196,7 +194,6 @@ function CategoryPieChart({
               </div>
             </div>
           ) : (
-            /* EMPTY STATE — FULL CARD CENTERED */
             <div className="h-80 w-full flex items-center justify-center">
               <EmptyCardState setShowAddModal={setShowAddModal} />
             </div>

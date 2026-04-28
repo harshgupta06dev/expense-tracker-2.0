@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, TestTubeDiagonal } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { currentPageOfPag } from "../../addTransactionModel/TransactionSlice";

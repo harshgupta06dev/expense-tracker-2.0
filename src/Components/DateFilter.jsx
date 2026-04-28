@@ -1,27 +1,3 @@
-import { Calendar } from "lucide-react";
-
-// function DateFilter({ dateFilter, setDateFilter, colorBg }) {
-//   return (
-//     <div className="hidden sm:block">
-//       <div className="relative w-48 md:w-64">
-//         <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 pointer-events-none" />
-//         <select
-//           value={dateFilter}
-//           onChange={(e) => setDateFilter(e.target.value)}
-//           className="pl-10 pr-4 py-2 bg-slate-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 border border-slate-600 appearance-none cursor-pointer font-medium text-sm w-full min-w-0"
-//         >
-//           <option value="all">All Time</option>
-//           <option value="today">Today</option>
-//           <option value="yesterday">Yesterday</option>
-//           <option value="this-week">Last 7 Days</option>
-//           <option value="this-month">This Month</option>
-//           <option value="this-year">This Year</option>
-//         </select>
-//       </div>
-//     </div>
-//   );
-// }
-
 // export default DateFilter;
 import { ChevronDown, Filter } from "lucide-react";
 import { useState } from "react";
