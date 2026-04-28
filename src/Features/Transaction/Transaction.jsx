@@ -15,8 +15,6 @@ import { useSelector } from "react-redux";
 import { selectTypeFilteredTransactions } from "../addTransactionModel/TransactionSlice";
 
 const TransactionsPage = () => {
-  // const [transactions] = useState(generateSampleData());
-
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const [showAddModal, setShowAddModal] = useState(false);
